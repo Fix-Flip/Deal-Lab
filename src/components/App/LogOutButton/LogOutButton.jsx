@@ -2,7 +2,9 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 // import './Nav/Nav.css';
 
-function LogOutButton(props) {
+
+
+function LogOutButton() {
   const dispatch = useDispatch();
   return (
     <button
