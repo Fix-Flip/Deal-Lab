@@ -20,9 +20,16 @@ function* addCalculations(action) {
 
 function* updateCalculations(action) {
     const propertyId = action.payload.propertyId;
-    console.log('Updating calculations payload:', action.payload);
+    const updateObj = {
+        downPayment: action.payload.downPaymentUpdate,
+        downPaymentPercentage: action.payload.downPaymentPercentageUpdate,
+        closingCosts: action.payload.closingCostsUpdate,
+        closingCostsPercentage: action.payload.closingCostsPercentageUpdate
+    }
+    console.log('updateObj in saga:', updateObj);
+
     try {
-        yield axios.put(`/api/mortgageCalculator/${propertyId}`, action.payload)
+        yield axios.put(`/api/mortgageCalculator/${propertyId}`, updateObj)
         yield put({
             type: 'GET_PROPERTY_OF_INTEREST',
             payload: propertyId
@@ -32,9 +39,28 @@ function* updateCalculations(action) {
     }
 }
 
+// function* updateDownClosingInputs(action) {
+//     const propertyId = action.payload.propertyId;
+//     console.log('data from UPDATING OMG:', action.payload);
+    
+//     try {
+//         yield axios.put(`/api/mortgageCalculator/inputs/${propertyId}`, action.payload)
+//         yield put({
+//             type: 'UPDATE_CALCULATIONS',
+//             payload: propertyId
+//         })
+//     } catch (error) {
+//         console.log('Error updating calculations for down && closing inputs:', error);
+//     }
+// }
+
 function* mortgageCalculatorSaga() {
     yield takeLatest('GET_PROPERTY_OF_INTEREST', addCalculations);
-    yield takeLatest('UPDATE_CALCULATIONS', updateCalculations);
+    yield takeLatest('UPDATE_PROPERTY', updateCalculations);
+    // yield takeLatest('UPDATE_DOWN_PAYMENT', updateDownClosingInputs);
+    // yield takeLatest('UPDATE_DOWN_PAYMENT_PERCENTAGE', updateDownClosingInputs);
+    // yield takeLatest('UPDATE_CLOSING_COSTS', updateDownClosingInputs);
+    // yield takeLatest('UPDATE_CLOSING_COSTS_PERCENTAGE', updateDownClosingInputs);
 }
 
 export default mortgageCalculatorSaga;
@@ -42,3 +68,4 @@ export default mortgageCalculatorSaga;
 // reducer: 'SET_CALCULATIONS'
 // url: '/api/mortgageCalculator'
 // GET_PROPERTY_OF_INTEREST
+

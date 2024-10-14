@@ -186,7 +186,7 @@ router.post('/:id', async (req, res) => {
         const mortgageCalculationsSqlData = getMortgageCalculationsResponse.rows[0]
 
         const finalMortgageCalculationsData = getMortgageCalculationsFixData(mortgageCalculationsSqlData, purchasePrice);
-        console.log('finalMortgageCalculationsData:', finalMortgageCalculationsData);
+        // console.log('finalMortgageCalculationsData:', finalMortgageCalculationsData);
         
         await connection.query('Commit;')
         res.send(finalMortgageCalculationsData);
@@ -221,7 +221,6 @@ router.put('/:id', async (req, res) => {
     let interestRateMonthly;
     let interestDecimalMonthly;
     let interestPaymentMonthly;
-    let mortgageCalculationsId;
 
     console.log('req.body data:', req.body);
     let connection;
@@ -260,7 +259,7 @@ router.put('/:id', async (req, res) => {
         }
 
         const newMortgageCalculationsDataObject = checkmortgageCalculationsData(mortgageCalculationsDataObject, mortgageCalculationsSqlData, purchasePrice)
-        console.log('newMortgageCalculationsDataObject:', newMortgageCalculationsDataObject);
+        // console.log('newMortgageCalculationsDataObject:', newMortgageCalculationsDataObject);
 
         interestRate = newMortgageCalculationsDataObject.interestRate;
         // loanTerm = newMortgageCalculationsDataObject.loanTerm;
@@ -312,6 +311,63 @@ router.put('/:id', async (req, res) => {
         const updateMortgageCalculationsResponse = await pool.query(updateMortgageCalculationsSqlText, mortgageCalculationsData)
         
         console.log('Calculations updated!');
+        await connection.query('Commit;')
+        res.sendStatus(200);
+
+    } catch (error) {
+        console.log('Update caculations failed:', error);
+        await connection.query('Rollback;')
+        res.sendStatus(500);
+    } finally {
+        await connection.release()
+    }
+})
+
+/**
+* PUT update input calculations
+*/
+router.put('/inputs/:id', async (req, res) => {
+    const userId = req.user.id;
+    const propertyId = req.params.id;
+    const input = req.body.input;
+
+    let downPayment;
+    let downPaymentPercentage;
+    let closingCosts;
+    let closingCostsPercentage;
+
+    console.log('req.body data:', req.body);
+    let connection;
+    let sqlText;
+    let sqlResponse;
+
+    try {
+        connection = await pool.connect()
+        await connection.query('BEGIN;')
+
+        if (input === 'downPayment' || input === 'downPaymentPercentage') {
+            downPayment = req.body.downPayment;
+            downPaymentPercentage = req.body.downPaymentPercentage / 100;
+
+            sqlText = `
+                UPDATE "mortgage_calculations"
+                    SET "down_payment" = $1, "down_payment_percentage" = $2
+                    WHERE "property_id" = $3;
+            `
+            sqlResponse = await connection.query(sqlText, [downPayment, downPaymentPercentage, propertyId])
+        } else if (input === 'closingCosts' || input === 'closingCostsPercentage') {
+            closingCosts = req.body.closingCosts;
+            closingCostsPercentage = req.body.closingCostsPercentage / 100;
+
+            sqlText = `
+                UPDATE "mortgage_calculations"
+                    SET "closing_costs" = $1, "closing_costs_percentage" = $2
+                    WHERE "property_id" = $3;
+            `
+            sqlResponse = await connection.query(sqlText, [closingCosts, closingCostsPercentage, propertyId])
+        }
+    
+        console.log('Calculations updated!', sqlResponse.rows);
         await connection.query('Commit;')
         res.sendStatus(200);
 
@@ -399,10 +455,10 @@ function getMortgageCalculationsFixData(object, price) {
         interest_rate_inserted_at: formattedDate,
         interest_rate_updated_at: object.interest_rate_updated_at,
         loan_term: object.loan_term,
-        down_payment: object.down_payment,
+        down_payment: Number(object.down_payment).toFixed(0),
         down_payment_percentage: (object.down_payment_percentage * 100),
         base_loan_amount: formattedCurrency(Number(object.base_loan_amount)),
-        closing_costs: object.closing_costs,
+        closing_costs: Number(object.closing_costs).toFixed(0),
         closing_costs_percentage: (object.closing_costs_percentage * 100),
         interest_rate_annual: Number(object.interest_rate_annual).toFixed(2) + '%',
         interest_rate_monthly: Number(object.interest_rate_monthly).toFixed(2)  + '%',
@@ -417,3 +473,4 @@ function getMortgageCalculationsFixData(object, price) {
 module.exports = router;
 
 // formattedCurrency(Number(propertyOfInterest.property[0].purchase_price))
+

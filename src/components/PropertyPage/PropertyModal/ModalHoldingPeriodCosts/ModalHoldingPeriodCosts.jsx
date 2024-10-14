@@ -11,7 +11,7 @@ function ModalHoldingPeriodCosts() {
   const mortgageCalculator = useSelector(store => store.mortgageCalculator);
 
   const [holdingName, setHoldingName] = useState("");
-  const [holdingItemCost, setHoldingItemCost] = useState("");
+  const [holdingItemCost, setHoldingItemCost] = useState(""); 
   const [loanTerm, setLoanTerm] = useState(30);
 
   const addHoldingItem = () => {

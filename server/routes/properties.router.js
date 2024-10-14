@@ -12,8 +12,8 @@ const pool = require('../modules/pool');
 const router = express.Router();
 const axios = require('axios');
 
-function upfrontCost (totalRepairCost, purchasePrice) {
-  let totalUpfrontCost = Number(totalRepairCost) + Number(purchasePrice);
+function upfrontCost (totalRepairCost, downPayment, closingCosts) {
+  let totalUpfrontCost = Number(totalRepairCost) + Number(downPayment) + Number(closingCosts) ;
   
   return totalUpfrontCost;
 }
@@ -118,6 +118,7 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', async (req, res) => {
   const api_key = process.env.RENTCAST_API_KEY;
+  const calculator_api_key = process.env.MORTGAGE_CALCULATOR_API_KEY;
   const address = req.body.address;
   const addressId = req.body.addressId
   const userId = req.user.id;
@@ -400,13 +401,155 @@ router.post('/', async (req, res) => {
     `;
 
     const updatePropertiesValues = [totalRepairs, totalUpfrontCost, monthlyHoldingCost, holdingCost, cost, totalProfit, totalMonthlyProfit, propertyId];
-
     const updatePropertiesResults = await connection.query(updatePropertiesText, updatePropertiesValues);
+
+
+
+    // ========================== CALLING API && CHECKING DEFAULT CALCULATIONS TIMESTAMP ==========================
+    const checkDefaultCalculationsTimeStampSqlText = `
+        SELECT *, "default_mortgage_calculations".id AS "default_mortgage_calculations_id"
+            FROM "default_mortgage_calculations"
+            JOIN "properties"
+            ON "properties".id = "default_mortgage_calculations".property_id
+                WHERE "default_mortgage_calculations".interest_rate_inserted_at 
+                        >= CURRENT_TIMESTAMP - INTERVAL '24 hours'
+                AND "properties".id = $1;
+    `
+    const checkDefaultCalculationsTimeStampResults = await connection.query(checkDefaultCalculationsTimeStampSqlText, [propertyId]);
+    const checkDefaultCalculationsTimeStampData = checkDefaultCalculationsTimeStampResults.rows;
+    // console.log('checkDefaultCalculationsTimeStampData is:', checkDefaultCalculationsTimeStampData);
+
+    if (checkDefaultCalculationsTimeStampData.length === 0) {
+      // ================ Axios for INTEREST RATE API
+      const interestRateResponse = await axios({
+          method: 'GET',
+          url: `https://api.api-ninjas.com/v1/interestrate?country=United States`,
+          headers: {
+              'accept': 'application/json',
+              'X-Api-Key': api_key
+          }
+      })
+      interestRate = interestRateResponse.data.central_bank_rates[0].rate_pct;
+      downPayment = purchasePrice * 0.2;
+      closingCosts = purchasePrice * 0.03;
+      baseLoanAmount = purchasePrice - downPayment;
+      // console.log('interestRate:', interestRate);
+      // console.log('downPayment:', downPayment);
+      // console.log('closingCosts:', closingCosts);
+      // console.log('baseLoanAmount:', baseLoanAmount);
+      
+      
+
+      // ================ Axios for MORTGAGE CALCULATOR API
+      const mortgageCalculatorResponse = await axios({
+          method: 'GET',
+          url: `https://api.api-ninjas.com/v1/mortgagecalculator?loan_amount=${purchasePrice}&interest_rate=${interestRate}&duration_years=${defaultLoanTerm}&downpayment=${downPayment}`,
+          headers: {
+              'accept': 'application/json',
+              'X-Api-Key': api_key
+          }
+      })
+      // &annual_property_tax=${propertyTax}
+      // monthlyPayment = mortgageCalculatorResponse.data.monthly_payment;
+      // annualPayment = mortgageCalculatorResponse.data.annual_payment;
+      totalInterestPaid = mortgageCalculatorResponse.data.total_interest_paid;
+      interestRateAnnual = Number(((((totalInterestPaid / baseLoanAmount) / (defaultLoanTerm * 365)) * 365) * 100).toFixed(3));
+      
+
+
+      // ================ SQL insert into table: DEFAULT_MORTGAGE_CALCULATIONS
+      const defaultCalculationsData = [
+          propertyId,
+          interestRate,
+          baseLoanAmount,
+          interestRateAnnual
+      ]
+      const defaultCalculationsSqlText = `
+          INSERT INTO "default_mortgage_calculations"
+          ("property_id", "interest_rate", "base_loan_amount", "interest_rate_annual")
+          VALUES
+          ($1, $2, $3, $4);
+      `
+      const defaultCalculationsResponse = await connection.query(defaultCalculationsSqlText, defaultCalculationsData)
+      
+  } else if (checkDefaultCalculationsTimeStampData.length > 0) {
+      console.log('Data is less than 24 hours, no API call');
+      const mostRecentCheck = checkDefaultCalculationsTimeStampData.length - 1;
+      interestRate = checkDefaultCalculationsTimeStampData[mostRecentCheck].interest_rate;
+      interestRateInsertedAt = checkDefaultCalculationsTimeStampData[mostRecentCheck].interest_rate_inserted_at;
+      purchasePrice = checkDefaultCalculationsTimeStampData[mostRecentCheck].purchase_price;
+      baseLoanAmount = checkDefaultCalculationsTimeStampData[mostRecentCheck].base_loan_amount;
+      interestRateAnnual = checkDefaultCalculationsTimeStampData[mostRecentCheck].interest_rate_annual;
+      downPayment = purchasePrice * 0.2;
+      closingCosts = purchasePrice * 0.03;
+  }
+
+
+
+  // ========================== CHECKING MORTGAGE CALCULATIONS TIMESTAMP ==========================
+  const checkMortgageCalculationsTimeStampSqlText = `
+  SELECT *, "mortgage_calculations".id AS "mortgage_calculations_id"
+      FROM "mortgage_calculations"
+      JOIN "properties"
+      ON "properties".id = "mortgage_calculations".property_id
+          WHERE "mortgage_calculations".interest_rate_api_inserted_at 
+                  >= CURRENT_TIMESTAMP - INTERVAL '24 hours'
+          AND "properties".id = $1;
+  `
+  const checkMortgageCalculationsTimeStampResults = await connection.query(checkMortgageCalculationsTimeStampSqlText, [propertyId]);
+  const checkMortgageCalculationsTimeStampData = checkMortgageCalculationsTimeStampResults.rows;
+  // console.log('checkMortgageCalculationsTimeStampData is:', checkMortgageCalculationsTimeStampData);
+
+
+  if (checkMortgageCalculationsTimeStampData.length === 0) {
+  // ================ SQL insert into table: MORTGAGE_CALCULATIONS
+  interestRateMonthly = interestRateAnnual / 12;
+  interestDecimalMonthly = interestRateMonthly / 100;
+  interestPaymentMonthly = interestDecimalMonthly * baseLoanAmount;
+
+  const mortgageCalculationsData = [
+      propertyId,
+      interestRate,
+      interestRateInsertedAt,
+      downPayment,
+      baseLoanAmount,
+      closingCosts,
+      interestRateAnnual,
+      interestRateMonthly,
+      interestDecimalMonthly,
+      interestPaymentMonthly
+  ]
+  const mortgageCalculationsSqlText = `
+      INSERT INTO "mortgage_calculations"
+      ("property_id", "interest_rate", "interest_rate_api_updated_at", "down_payment", "base_loan_amount",
+      "closing_costs", "interest_rate_annual", "interest_rate_monthly", "interest_decimal_monthly", "interest_payment_monthly")
+      VALUES
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING "id";
+  `
+  const mortgageCalculationsResponse = await connection.query(mortgageCalculationsSqlText, mortgageCalculationsData)
+  mortgageCalculationsId = mortgageCalculationsResponse.rows[0].id;
+
+  } else if (checkMortgageCalculationsTimeStampData.length > 0) {
+      const mostRecentCheck = checkMortgageCalculationsTimeStampData.length - 1;
+      mortgageCalculationsId = checkMortgageCalculationsTimeStampData[mostRecentCheck].mortgage_calculations_id;
+
+  }
+
+  // ================ SQL get table: MORTGAGE_CALCULATIONS
+  const getMortgageCalculationsSqlText = `
+      SELECT * FROM "mortgage_calculations"
+          WHERE "id" = $1;
+  `
+  const getMortgageCalculationsResponse = await connection.query(getMortgageCalculationsSqlText, [mortgageCalculationsId]);
+  const mortgageCalculationsSqlData = getMortgageCalculationsResponse.rows[0]
+
+  const finalMortgageCalculationsData = getMortgageCalculationsFixData(mortgageCalculationsSqlData, purchasePrice);
 
     console.log('Property posted/updated in database!');
     
     await connection.query('Commit;');
-    res.sendStatus(201);
+    res.send(finalMortgageCalculationsData);
 
   } catch(err) {
     console.log('Add property failed: ', err);
@@ -483,27 +626,40 @@ router.put('/', async (req, res) => {
     const updatePropertyValues = [holdingPeriod, purchasePrice, afterRepairValue, propertyId]
     const updatePropertyResult = await connection.query(updatePropertyText, updatePropertyValues)
 
+    const mortgageCalcSqlText = `
+      SELECT * FROM "mortgage_calculations"
+      WHERE "property_id" = $1;
+    `
+    const mortgageCalcResponse = await connection.query(mortgageCalcSqlText, [propertyId])
+    const mortgageCalcData = mortgageCalcResponse.rows[0];
+    console.log('mortgageCalcData:', mortgageCalcData);
+    const downPayment= mortgageCalcData.down_payment;
+    const closingCosts = mortgageCalcData.closing_costs;
+    const interestPaymentMonthly = mortgageCalcData.interest_payment_monthly;
+    const totalMonthlyHoldingCost = Number(interestPaymentMonthly) + Number(monthlyHoldingCost);
+    
+
     // ================ SQL update table: PROPERTIES
-    const totalUpfrontCost = upfrontCost(totalRepairs, purchasePrice);
+    const totalUpfrontCost = upfrontCost(totalRepairs, purchasePrice, downPayment, closingCosts);
     const cost = totalCost(totalRepairs, purchasePrice, holdingPeriod, monthlyHoldingCost);
-    const holdingCost = totalHoldingCost(holdingPeriod, monthlyHoldingCost);
+    const holdingCost = totalHoldingCost(holdingPeriod, totalMonthlyHoldingCost);
     const totalProfit = profit(afterRepairValue, totalRepairs, purchasePrice, holdingPeriod, monthlyHoldingCost);
     const totalMonthlyProfit = monthlyProfit(afterRepairValue, totalRepairs, purchasePrice, holdingPeriod, monthlyHoldingCost);
     
 
     const updatePropertiesText = `
     UPDATE "properties"
-       SET "total_repair_cost" = $1,
-           "total_upfront_cost" = $2,
-           "monthly_holding_cost" = $3,
-           "total_holding_cost" = $4,
-           "total_cost" = $5,
-           "profit" = $6,
-           "monthly_profit" = $7
-       WHERE "id" = $8;
- `;
- const updatePropertiesValues = [totalRepairs, totalUpfrontCost, monthlyHoldingCost, holdingCost, cost, totalProfit, totalMonthlyProfit, propertyId];
- const updatePropertiesResults = await connection.query(updatePropertiesText, updatePropertiesValues);
+      SET "total_repair_cost" = $1,
+          "total_upfront_cost" = $2,
+          "monthly_holding_cost" = $3,
+          "total_holding_cost" = $4,
+          "total_cost" = $5,
+          "profit" = $6,
+          "monthly_profit" = $7
+      WHERE "id" = $8;
+`;
+const updatePropertiesValues = [totalRepairs, totalUpfrontCost, monthlyHoldingCost, holdingCost, cost, totalProfit, totalMonthlyProfit, propertyId];
+const updatePropertiesResults = await connection.query(updatePropertiesText, updatePropertiesValues);
 
 
     await connection.query('Commit;')
@@ -537,14 +693,14 @@ router.get('/propertyOfInterest/:id', rejectUnauthenticated, async (req, res) =>
     //requests specific property info from the properties table
     const propertyText = `
       SELECT * FROM "properties"
-	      WHERE "properties"."id" = $1;
+        WHERE "properties"."id" = $1;
     `;
     const propertyValue = [propertyId]
     const propertyResult = await connection.query(propertyText, propertyValue);
     // console.log('database reponse to property: ', propertyResult.rows)
 
 
-    //request repair items for specific property
+    // request repair items for specific property
     const repairItemText = `
       SELECT 
         "repair_items"."id" AS "id",
@@ -762,7 +918,6 @@ router.put('/backToDefault/:id', async (req, res) => {
       purchasePrice = Number(checkTimeStampData[mostRecentCheck].purchase_price);
       afterRepairValue = Number(checkTimeStampData[mostRecentCheck].after_repair_value);
       taxYear = Number(checkTimeStampData[mostRecentCheck].taxes_yearly)
-      
     }
 
 
@@ -821,27 +976,27 @@ router.put('/backToDefault/:id', async (req, res) => {
     }
 
      // ================ SQL sum repair cost: REPAIR
-     const totalRepairCostText = `
-     SELECT 
-       SUM("default_repairs"."repair_cost") AS "total_repair_cost"
-       FROM "default_repairs"
-       WHERE "user_id" = $1;
-     `;
-     const totalRepairCostValues = [userId];
-     const totalRepairCostResults = await connection.query(totalRepairCostText, totalRepairCostValues);
-     console.log('sum of repair items. expected: 200', totalRepairCostResults.rows[0].total_repair_cost)
-     const totalRepairs = Number(totalRepairCostResults.rows[0].total_repair_cost)
- 
+    const totalRepairCostText = `
+    SELECT 
+      SUM("default_repairs"."repair_cost") AS "total_repair_cost"
+      FROM "default_repairs"
+      WHERE "user_id" = $1;
+    `;
+    const totalRepairCostValues = [userId];
+    const totalRepairCostResults = await connection.query(totalRepairCostText, totalRepairCostValues);
+    console.log('sum of repair items. expected: 200', totalRepairCostResults.rows[0].total_repair_cost)
+    const totalRepairs = Number(totalRepairCostResults.rows[0].total_repair_cost)
+
      // ================ SQL select default holding period: USER
-     const getDefaultHoldingPeriodText = `
-     SELECT 
-       "user"."holding_period_default" AS "defaultHoldingPeriod"
-       FROM "user"
-       WHERE "id" = $1;
-     `;
-     const getDefaultHoldingPeriodResults = await connection.query(getDefaultHoldingPeriodText, [userId]);
-     console.log('getDefaultHoldingPeriodResult: ', getDefaultHoldingPeriodResults.rows)
-     const defaultHoldingPeriod = Number(getDefaultHoldingPeriodResults.rows[0].defaultHoldingPeriod)
+    const getDefaultHoldingPeriodText = `
+    SELECT 
+      "user"."holding_period_default" AS "defaultHoldingPeriod"
+      FROM "user"
+      WHERE "id" = $1;
+    `;
+    const getDefaultHoldingPeriodResults = await connection.query(getDefaultHoldingPeriodText, [userId]);
+    console.log('getDefaultHoldingPeriodResult: ', getDefaultHoldingPeriodResults.rows)
+    const defaultHoldingPeriod = Number(getDefaultHoldingPeriodResults.rows[0].defaultHoldingPeriod)
 
       // ================ SQL update table: PROPERTIES
       const totalUpfrontCost = upfrontCost(totalRepairs, purchasePrice);
@@ -854,18 +1009,18 @@ router.put('/backToDefault/:id', async (req, res) => {
         taxYear,
         afterRepairValue
       const updatePropertiesText = `
-         UPDATE "properties"
-            SET "total_repair_cost" = $1,
-                "total_upfront_cost" = $2,
-                "monthly_holding_cost" = $3,
-                "total_holding_cost" = $4,
-                "total_cost" = $5,
-                "profit" = $6,
-                "monthly_profit" = $7,
-                "holding_period" = $8,
-                "purchase_price" = $9,
-                "taxes_yearly" = $10,
-                "after_repair_value" = $11
+        UPDATE "properties"
+          SET "total_repair_cost" = $1,
+              "total_upfront_cost" = $2,
+              "monthly_holding_cost" = $3,
+              "total_holding_cost" = $4,
+              "total_cost" = $5,
+              "profit" = $6,
+              "monthly_profit" = $7,
+              "holding_period" = $8,
+              "purchase_price" = $9,
+              "taxes_yearly" = $10,
+              "after_repair_value" = $11
             WHERE "id" = $12;
       `;
   

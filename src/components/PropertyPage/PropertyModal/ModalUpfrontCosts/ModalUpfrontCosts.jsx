@@ -2,8 +2,127 @@ import React from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { useState } from 'react';
 
+// function ModalCalculatorData({
+//   formattedCurrency,
+//   setDownPaymentUpdate, setDownPaymentPercentageUpdate, setClosingCostsUpdate, setClosingCostsPercentageUpdate
+// }) {
+//   const dispatch = useDispatch();
+//   const propertyOfInterest = useSelector((store) => store.propertyOfInterest)
+//   const mortgageCalculator = useSelector((store) => store.mortgageCalculator)
+//   const purchasePrice = (Object.keys(propertyOfInterest).length && propertyOfInterest.property[0].purchase_price);
+//   const propertyId = (Object.keys(propertyOfInterest).length && propertyOfInterest.property[0].id)
 
-function ModalUpfrontCosts() {
+//   console.log('mortgage calculatorsjkadfhasjdhflaksjdhflkjasdh:', mortgageCalculator);
+  
+//   // const [downPayment, setDownPayment] = useState(mortgageCalculator.down_payment);
+//   const [downPaymentPercentage, setDownPaymentPercentage] = useState(mortgageCalculator.down_payment_percentage);
+//   const [closingCosts, setClosingCosts] = useState(mortgageCalculator.closing_costs);
+//   const [closingCostsPercentage, setClosingCostsPercentage] = useState(mortgageCalculator.closing_costs_percentage);
+
+ 
+
+//   // const handleDownPayment = (e) => {
+//   //   const numberValue = Number(e.target.value .replace(/[^0-9.-]+/g, ""));
+//   //   const newPercentage = Number((numberValue / purchasePrice) * 100).toFixed(2);
+//   //   setDownPaymentPercentage(newPercentage)
+//   //   setDownPayment(e.target.value)
+//   //   setDownPaymentUpdate(e.target.value)
+//   // }
+
+//   const handleDownPaymentPercentage = (e) => {
+//     const newNumber = Number((e.target.value / 100) * purchasePrice).toFixed(2);
+//     setDownPayment(newNumber)
+//     setDownPaymentPercentage(e.target.value)
+//     setDownPaymentPercentageUpdate(e.target.value)
+//   }
+
+//   const handleClosingCosts = (e) => {
+//     const numberValue = Number(e.target.value .replace(/[^0-9.-]+/g, ""));
+//     const newPercentage = Number((numberValue / purchasePrice) * 100).toFixed(2);
+//     setClosingCostsPercentage(newPercentage)
+//     setClosingCosts(e.target.value)
+//     setClosingCostsUpdate(e.target.value)
+//   }
+
+//   const handleClosingCostsPercentage = (e) => {
+//     const newNumber = Number((e.target.value / 100) * purchasePrice).toFixed(2);
+//     setClosingCosts(newNumber)
+//     setClosingCostsPercentage(e.target.value)
+//     setClosingCostsPercentageUpdate(e.target.value)
+//   }
+
+//   // const handleUpdateCalculations = () => {
+//   //     dispatch({
+//   //       type: 'UPDATE_CALCULATIONS',
+//   //       payload: {
+//   //         propertyId: propertyId,
+//   //         downPayment: downPayment,
+//   //         downPaymentPercentage: downPaymentPercentage,
+//   //         closingCosts: closingCosts,
+//   //         closingCostsPercentage: closingCostsPercentage
+//   //       }
+//   //     })
+//   // }
+
+//   return (
+//     <div>
+//         <div className = "property-data">
+//           <p onClick={updatePurchasePrice}> Purchase Price:</p> 
+//           <input
+//             className = "property-data-input" 
+//             placeholder="Purchase Price"
+//             value= {formattedCurrency(Number(propertyOfInterest.property[0].purchase_price))}
+//             onChange={e => {e.preventDefault; dispatch({type: 'UPDATE_PROPERTY_PURCHASE_PRICE', payload: e.target.value})}}
+//           />
+//         </div>
+
+//         <div className = "property-data">
+//           <label onClick={updateMortgageCalculator}>Down Payment:</label>
+//           <div className="label">
+//             <input 
+//               placeholder="Down Payment"
+//               className="mortgage-input"
+//               value={mortgageCalculator.down_payment}
+//               onChange={e => {e.preventDefault; dispatch({type: 'UPDATE_DOWN_PAYMENT', payload: {downPayment: e.target.value, downPaymentPercent: mortgageCalculator.down_payment_percentage, purchasePrice: propertyOfInterest.property[0].purchase_price}})}} 
+//             />
+//             <label className="label">at</label>
+//             <input 
+//               placeholder="%"
+//               className="percentage-input"
+//               value={mortgageCalculator.down_payment_percentage}
+//               onChange={handleDownPaymentPercentage} 
+//             />
+//             <label className="label">%</label>
+//           </div>
+//         </div>
+
+//         <p className="mortgageCalculatorLoanItems">Base Loan Amount: {mortgageCalculator.base_loan_amount}</p>
+//         <div className = "property-data">
+//           <label>Closing Costs:</label>
+//             <div className="label">
+//               <input 
+//                 placeholder="Closing Costs" 
+//                 className="mortgage-input"
+//                 value={closingCosts}
+//                 onChange={handleClosingCosts}
+//               />
+//               <label className="label">at</label>
+//               <input 
+//                 placeholder="%"
+//                 className="percentage-input"
+//                 value={closingCostsPercentage}
+//                 onChange={handleClosingCostsPercentage} 
+//               />
+//               <label> % </label>
+//             </div>
+//           </div>
+//           {/* <button className="modal-btn-2"
+//                   onClick={handleUpdateCalculations} >Calculate</button> */}
+//     </div>
+//   )
+// }
+
+function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate, setClosingCostsUpdate, setClosingCostsPercentageUpdate}) {
 
   const dispatch = useDispatch();
 
@@ -12,12 +131,14 @@ function ModalUpfrontCosts() {
 
   const [repairName, setRepairName] = useState("");
   const [repairItemCost, setRepairItemCost] = useState("");
-  const [downPayment, setDownPayment] = useState('');
-  const [downPaymentPercentage, setDownPaymentPercentage] = useState('');
-  const [closingCosts, setClosingCosts] = useState('');
-  const [closingCostsPercentage, setClosingCostsPercentage] = useState('');
-  const purchasePrice = (Object.keys(propertyOfInterest).length && propertyOfInterest.property[0].purchase_price);
   const propertyId = (Object.keys(propertyOfInterest).length && propertyOfInterest.property[0].id)
+
+  // const totalDownClosing = (Object.keys(mortgageCalculator).length && 
+  //       (Number(mortgageCalculator.down_payment.replace(/[^0-9.-]+/g, "")) +
+  //       Number(mortgageCalculator.closing_costs.replace(/[^0-9.-]+/g, ""))))
+  // console.log('totalDownClosing:', totalDownClosing);
+
+
 
   const addRepairItem = () => {
       dispatch ({
@@ -60,46 +181,8 @@ function ModalUpfrontCosts() {
   const updateMortgageCalculator = () => {
     setDownPayment('10000')
     setDownPaymentPercentage('5')
-    setInterestRate('6.5')
     setClosingCosts('50000')
     setClosingCostsPercentage('10')
-  }
-
-  const handleDownPayment = (e) => {
-    const newPercentage = Number((e.target.value / purchasePrice) * 100).toFixed(2);
-    setDownPayment(e.target.value)
-    setDownPaymentPercentage(newPercentage)
-  }
-
-  const handleDownPaymentPercentage = (e) => {
-    const newNumber = Number((e.target.value / 100) * purchasePrice).toFixed(2);
-    setDownPaymentPercentage(e.target.value)
-    setDownPayment(newNumber)
-  }
-
-  const handleClosingCosts = (e) => {
-    const newPercentage = Number((e.target.value / purchasePrice) * 100).toFixed(2);
-    setClosingCosts(e.target.value)
-    setClosingCostsPercentage(newPercentage)
-  }
-
-  const handleClosingCostsPercentage = (e) => {
-    const newNumber = Number((e.target.value / 100) * purchasePrice).toFixed(2);
-    setClosingCostsPercentage(e.target.value)
-    setClosingCosts(newNumber)
-  }
-
-  const handleUpdateCalculations = () => {
-      dispatch({
-        type: 'UPDATE_CALCULATIONS',
-        payload: {
-          propertyId: propertyId,
-          downPayment: downPayment,
-          downPaymentPercentage: downPaymentPercentage,
-          closingCosts: closingCosts,
-          closingCostsPercentage: closingCostsPercentage
-        }
-      })
   }
 
   return (
@@ -107,12 +190,20 @@ function ModalUpfrontCosts() {
       {Object.keys(propertyOfInterest).length && 
       <>
 
-        <div className = "property-data">
+        {/* <ModalCalculatorData 
+                            formattedCurrency={formattedCurrency}
+                            setDownPaymentUpdate={setDownPaymentUpdate}
+                            setDownPaymentPercentageUpdate={setDownPaymentPercentageUpdate}
+                            setClosingCostsUpdate={setClosingCostsUpdate}
+                            setClosingCostsPercentageUpdate={setClosingCostsPercentageUpdate} /> */}
+
+      
+<div className = "property-data">
           <p onClick={updatePurchasePrice}> Purchase Price:</p> 
           <input
             className = "property-data-input" 
             placeholder="Purchase Price"
-            value= {formattedCurrency(Number(propertyOfInterest.property[0].purchase_price))}
+            value={formattedCurrency(Number(propertyOfInterest.property[0].purchase_price))}
             onChange={e => {e.preventDefault; dispatch({type: 'UPDATE_PROPERTY_PURCHASE_PRICE', payload: e.target.value})}}
           />
         </div>
@@ -123,15 +214,32 @@ function ModalUpfrontCosts() {
             <input 
               placeholder="Down Payment"
               className="mortgage-input"
-              value={downPayment}
-              onChange={handleDownPayment} 
+              value={formattedCurrency(Number(mortgageCalculator.down_payment))}
+              onChange={e => {e.preventDefault; 
+                dispatch({
+                  type: 'UPDATE_DOWN_PAYMENT', 
+                  payload: {
+                    downPayment: e.target.value, 
+                    downPaymentPercent: mortgageCalculator.down_payment_percentage, 
+                    purchasePrice: propertyOfInterest.property[0].purchase_price,
+                    propertyId: propertyId,
+                    input: 'downPayment'
+                  }})}} 
             />
             <label className="label">at</label>
             <input 
               placeholder="%"
               className="percentage-input"
-              value={downPaymentPercentage}
-              onChange={handleDownPaymentPercentage} 
+              value={mortgageCalculator.down_payment_percentage}
+              onChange={e => {e.preventDefault; 
+                dispatch({type: 'UPDATE_DOWN_PAYMENT_PERCENTAGE', 
+                  payload: {
+                    downPayment:mortgageCalculator.down_payment,  
+                    downPaymentPercent: e.target.value, 
+                    purchasePrice: propertyOfInterest.property[0].purchase_price,
+                    propertyId: propertyId,
+                    input: 'downPaymentPercentage'
+                  }})}} 
             />
             <label className="label">%</label>
           </div>
@@ -144,21 +252,36 @@ function ModalUpfrontCosts() {
               <input 
                 placeholder="Closing Costs" 
                 className="mortgage-input"
-                value={closingCosts}
-                onChange={handleClosingCosts}
+                value={formattedCurrency(Number(mortgageCalculator.closing_costs))}
+                onChange= {e => {e.preventDefault; 
+                  dispatch({type: 'UPDATE_CLOSING_COSTS', 
+                    payload: {
+                      closingCosts: e.target.value, 
+                      closingCostsPercentage: mortgageCalculator.closing_costs_percentage, 
+                      purchasePrice: propertyOfInterest.property[0].purchase_price,
+                      propertyId: propertyId,
+                      input: 'closingCosts'
+                    }})}} 
               />
               <label className="label">at</label>
               <input 
                 placeholder="%"
                 className="percentage-input"
-                value={closingCostsPercentage}
-                onChange={handleClosingCostsPercentage} 
+                value={mortgageCalculator.closing_costs_percentage}
+                onChange={e => {e.preventDefault; dispatch({
+                  type: 'UPDATE_CLOSING_COSTS_PERCENTAGE', 
+                  payload: {
+                    closingCosts: mortgageCalculator.closing_costs, 
+                    closingCostsPercentage: e.target.value, 
+                    purchasePrice: propertyOfInterest.property[0].purchase_price,
+                    propertyId: propertyId,
+                    input: 'closingCostsPercentage'
+                  }})}} 
               />
               <label> % </label>
             </div>
           </div>
-          <button className="modal-btn-2"
-                  onClick={handleUpdateCalculations} >Calculate</button>
+
 
       {/* ***************** REMOVE SPANS AND ONCLICKS*************** */}
       <p className="top-border"> <span onClick={RepairItemsInputOne}>Repair</span> <span onClick={RepairItemsInputTwo}>Items:</span></p>
@@ -196,7 +319,7 @@ function ModalUpfrontCosts() {
       <p className = "item-list-total">Total Repair Cost: {formattedCurrency(propertyOfInterest.property[0].total_repair_cost)}</p>
       
         <p className="section-totals">
-          <span className="bold-text">Total Upfront Cost: {formattedCurrency(propertyOfInterest.property[0].total_upfront_cost)}</span>
+          <span className="bold-text">Total Upfront Cost: {formattedCurrency(Number(propertyOfInterest.property[0].total_upfront_cost))}</span>
         </p>
         <p className="calculation-explanation">(Purchase Price + Total Repair Cost)</p>
       </>
