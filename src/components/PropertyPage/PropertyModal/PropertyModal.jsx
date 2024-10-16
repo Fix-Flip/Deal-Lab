@@ -9,12 +9,18 @@ import Swal from 'sweetalert2';
 
 
 const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedProperty }) => {
-
+  
   const dispatch = useDispatch();
 
   const propertyOfInterest = useSelector((store) => store.propertyOfInterest);
+  const mortgageCalculator = useSelector(store => store.mortgageCalculator);
 
-//Checks if the mdoal is open
+  const [downPaymentUpdate, setDownPaymentUpdate] = useState('')
+  const [downPaymentPercentageUpdate, setDownPaymentPercentageUpdate] = useState('')
+  const [closingCostsUpdate, setClosingCostsUpdate] = useState('')
+  const [closingCostsPercentageUpdate, setClosingCostsPercentageUpdate] = useState('')
+  
+//Checks if the modal is open
   useEffect(() => {
     
     if (isOpen) {
@@ -25,7 +31,7 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
     return () => {
       document.body.style.overflow = 'unset';
     }
-   
+
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -72,13 +78,17 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
   //sends a dispatch to the properties saga
   const saveUpdatedPropertyInfo = () => {
     dispatch({
-      type: 'UPDATE_PROPERTY',
+      type: 'UPDATE_CALCULATIONS',
       payload: {
         propertyId: propertyOfInterest.property[0].id,
         holdingPeriod: propertyOfInterest.property[0].holding_period,
         purchasePrice: propertyOfInterest.property[0].purchase_price,
         afterRepairValue: propertyOfInterest.property[0].after_repair_value,
-        userId: userId
+        userId: userId,
+        downPayment: mortgageCalculator.down_payment,
+        downPaymentPercentage: mortgageCalculator.down_payment_percentage,
+        closingCosts: mortgageCalculator.closing_costs,
+        closingCostsPercentage: mortgageCalculator.closing_costs_percentage
     }
   })
   setSelectedProperty(propertyOfInterest.property[0])
@@ -121,7 +131,10 @@ const formattedCurrency = (value) => {
         <div className="modalRight grid-container">
           <div className='section upfront-costs'>
             <h3 className='section-header'>Upfront Costs</h3>
-            <ModalUpfrontCosts />
+            <ModalUpfrontCosts setDownPaymentUpdate={setDownPaymentUpdate}
+                              setDownPaymentPercentageUpdate={setDownPaymentPercentageUpdate}
+                              setClosingCostsUpdate={setClosingCostsUpdate}
+                              setClosingCostsPercentageUpdate={setClosingCostsPercentageUpdate} />
           </div>
 
           <div className='section'>

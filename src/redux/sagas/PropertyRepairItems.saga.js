@@ -14,6 +14,7 @@ function* addPropertyRepairItem(action) {
   }
 }
 
+
 //runs when trash can is clicked in modal next to repair item
 function* deletePropertyRepairItem(action) {
   try {
@@ -26,6 +27,7 @@ function* deletePropertyRepairItem(action) {
     console.log('Error deleting property repair item:', error);
   }
 }
+
 
 function* propertyRepairItemsSaga() {
     yield takeLatest('ADD_PROPERTY_REPAIR_ITEM', addPropertyRepairItem);

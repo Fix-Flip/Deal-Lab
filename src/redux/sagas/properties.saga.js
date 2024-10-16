@@ -12,10 +12,9 @@ function* getProperties(action) {
     })
   } catch (error) {
     console.log('Error in getting properties:', error);
-    
   }
-  
 }
+
 
 //adds a property to the database
 function* addProperty(action) {
@@ -24,15 +23,26 @@ function* addProperty(action) {
   const addressId = action.payload.addressId
   try {
     const response = yield axios.post(`api/properties`, {address:address, addressId: addressId})
-    
+
+    console.log('addProperty data:', response.data);
+
+    yield put({
+      type: 'SET_CALCULATIONS',
+      payload: response.data
+    })
+    console.log('SET_CALCULATIONS worked!');
+
+
     yield put({
         type: 'GET_PROPERTIES',
         payload: userId
     })
+    console.log('GET_PROPERTIES worked!');
   } catch (error) {
     console.log('Error in getting property details:', error);
   }
 }
+
 
 //deletes a property from the database
 function* deleteProperty(action) {
@@ -50,6 +60,7 @@ function* deleteProperty(action) {
   }
 }
 
+
 //receives updated property information, sends the infomaiton to the server,
 //and gets new property and properties 
 function* updateProperty(action) {
@@ -57,17 +68,18 @@ function* updateProperty(action) {
     //sends a put request to to the properties router
     yield axios.put(`api/properties`, action.payload)
     yield put({
-        type: 'GET_PROPERTY_OF_INTEREST',
-        payload: action.payload.propertyId
+      type: 'GET_PROPERTY_OF_INTEREST',
+      payload: action.payload.propertyId
     })
     yield put({
       type: 'GET_PROPERTIES',
       payload: action.payload.userId
-  })
+    })
   } catch (error) {
     console.log('Error updating property taxes:', error);
   }
 }
+
 
 //sets the repair and holding items for a specific property equal to the default settings items
 function* updateBackToDefault(action) {
@@ -84,6 +96,7 @@ function* updateBackToDefault(action) {
   }
 }
 
+
 //getPropertyOfInterest sends an axios request to the properties.router.js and
 //sends the response data to the PropertyOfInterest reducer.
 function* getPropertyOfInterest(action) {
@@ -95,6 +108,7 @@ function* getPropertyOfInterest(action) {
     console.log('getPropertyOfInterest get request failed', error);
   }
 }
+
 
 //sets property taxes equal to zero
 function* updatePropertyTaxes(action) {
@@ -109,6 +123,7 @@ function* updatePropertyTaxes(action) {
   }
 }
 
+
 //gets properties by specified filter
 function* getPropertiesFiltered(action) {
   try {
@@ -121,6 +136,7 @@ function* getPropertiesFiltered(action) {
     console.log('Error updating property taxes:', error);
   }
 }
+
 
 function* propertiesSaga() {
     yield takeLatest('GET_PROPERTIES', getProperties);

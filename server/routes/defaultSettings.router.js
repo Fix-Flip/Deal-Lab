@@ -6,8 +6,9 @@ const pool = require('../modules/pool');
 const router = express.Router();
 
 
+// ===================== Default =====================
 /**
- * GET defaults
+ * ----- GET defaults: getDefaults
  */
 router.get('/', rejectUnauthenticated, async (req, res) => {
   const userId = req.user.id;
@@ -38,7 +39,7 @@ router.get('/', rejectUnauthenticated, async (req, res) => {
 
 
 /**
- * PUT default holding period
+ * ----- PUT default holding period: updateDefaultHoldingPeriod
  */
 router.put('/',rejectUnauthenticated, (req, res) => {
   const userId = req.user.id;
@@ -59,8 +60,9 @@ router.put('/',rejectUnauthenticated, (req, res) => {
 });
 
 
+// ===================== Holding Item =====================
 /**
- * POST default holding item: addDefaultHoldingItem
+ * ----- POST default holding item: addDefaultHoldingItem
  */
 router.post('/holdingItem',rejectUnauthenticated, (req, res) => {
   const holdingName = req.body.holdingName;
@@ -85,7 +87,7 @@ router.post('/holdingItem',rejectUnauthenticated, (req, res) => {
 
 
 /**
- * DELETE default holding item
+ * ----- DELETE default holding item: deleteDefaultHoldingItem
  */
 router.delete('/holdingItem/:id',rejectUnauthenticated, (req, res) => {
   const holdingId = req.params.id;
@@ -106,8 +108,9 @@ router.delete('/holdingItem/:id',rejectUnauthenticated, (req, res) => {
 });
 
 
+// ===================== Repair Item =====================
 /**
- * POST default repair item: addDefaultRepairItem
+ * ----- POST default repair item: addDefaultRepairItem
  */
 router.post('/repairItem',rejectUnauthenticated, (req, res) => {
   const repairName = req.body.repairName;
@@ -131,7 +134,7 @@ router.post('/repairItem',rejectUnauthenticated, (req, res) => {
 
 
 /**
- * DELETE default repair item
+ * ----- DELETE default repair item: deleteDefaultRepairItem
  */
 router.delete('/repairItem/:id',rejectUnauthenticated, (req, res) => {
     const repairId = req.params.id;

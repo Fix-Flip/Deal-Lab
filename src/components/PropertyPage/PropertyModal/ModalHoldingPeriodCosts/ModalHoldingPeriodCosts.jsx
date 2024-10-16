@@ -10,6 +10,15 @@ function ModalHoldingPeriodCosts() {
   const propertyOfInterest = useSelector((store) => store.propertyOfInterest);
 
   const [holdingName, setHoldingName] = useState("");
+
+
+
+  
+  // const [loanTerm, setLoanTerm] = useState(30);
+
+
+
+
   const [holdingItemCost, setHoldingItemCost] = useState("");
   
   // runs when the user clicks "add" on holding item

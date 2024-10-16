@@ -16,6 +16,7 @@ function* getDefaults(action) {
   }
 }
 
+
 //runs when "save" next to default holding period is clicked
 function* updateDefaultHoldingPeriod(action) {
   const holdingPeriod = action.payload;
@@ -28,6 +29,7 @@ function* updateDefaultHoldingPeriod(action) {
     console.log('Error updating default holding period', error);
   }
 }
+
 
 //runs when "add" is clicked on default holding item 
 function* addDefaultHoldingItem(action) {
@@ -43,6 +45,7 @@ function* addDefaultHoldingItem(action) {
   }
 }
 
+
 //runs when trash can next to default holding item is clicked
 function* deleteDefaultHoldingItem(action) {
   const holdingId = action.payload;
@@ -55,6 +58,7 @@ function* deleteDefaultHoldingItem(action) {
     console.log('Error deleting default holding item:', error);
   }
 }
+
 
 //runs when "add" next to default repair items is clicked
 function* addDefaultRepairItem(action) {
@@ -70,6 +74,7 @@ function* addDefaultRepairItem(action) {
   }
 }
 
+
 //runs when trash can next to repair item is clicked
 function* deleteDefaultRepairItem(action) {
   const repairId = action.payload;
@@ -82,6 +87,7 @@ function* deleteDefaultRepairItem(action) {
     console.log('Error deleting default repair item:', error);
   }
 }
+
 
 function* defaultSettingsSaga() {
     yield takeLatest('GET_DEFAULTS', getDefaults);

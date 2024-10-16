@@ -1,11 +1,12 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2'
 import './PropertyCard.css';
 
 function PropertyCard({ property, userId, onOpenModal, allRepairItems, allHoldingItems}) {
   const dispatch = useDispatch();
+  const mortgageCalculator = useSelector(store => store.mortgageCalculator);
 
   //getPropertyOfInterest function runs when the user clicks 
   //on the address card. This function sends a a dispatch to the properties.saga.js
@@ -17,6 +18,8 @@ function PropertyCard({ property, userId, onOpenModal, allRepairItems, allHoldin
     });
     
   }
+
+  console.log('mortgageCalculator data:', mortgageCalculator);
 
   //deleteProperty function runs when the user clicks "delete". 
 

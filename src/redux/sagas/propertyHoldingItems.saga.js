@@ -14,6 +14,7 @@ function* addPropertyHoldingItem(action) {
   }
 }
 
+
 //runs when trash can next to holding item in modal is clicked
 function* deletePropertyHoldingItem(action) {
   try {
@@ -26,6 +27,7 @@ function* deletePropertyHoldingItem(action) {
     console.log('Error deleting property repair item:', error);
   }
 }
+
 
 function* propertyHoldingItemsSaga() {
     yield takeLatest('ADD_PROPERTY_HOLDING_ITEM', addPropertyHoldingItem);
