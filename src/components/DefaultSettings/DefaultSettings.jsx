@@ -7,11 +7,15 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 import Swal from 'sweetalert2';
 import '../PropertyPage/PropertyModal/PropertyModal.css';
+import '../../../public/info.png'
 
 
 function DefaultSettings() {
   const user = useSelector(store => store.user);
   const defaultSettings = useSelector(store => store.defaultSettings);
+  const [showText, setShowText] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
   const defaultHoldings = defaultSettings.defaultHoldings;
   const defaultRepairs = defaultSettings.defaultRepairs;
   const dispatch = useDispatch();
@@ -46,16 +50,36 @@ function DefaultSettings() {
     });
   }
 
-  console.log('defaultSettings data:', defaultSettings);
-  console.log('user data:', user);
+  // console.log('defaultSettings data:', defaultSettings);
+  // console.log('user data:', user);
   const updateHoldingPeriodInput = () => {
-    setHoldingPeriod('4')
+    // setHoldingPeriod('4')
   }
+
+  const handleMouseMove = (e) => {
+    setPosition({ x: e.clientX, y: e.clientY });
+    // console.log('handlemousemove', e.clientX, e.clientY)
+  };
 
   return (
     <div className="defaultSettings">
-      <br />
-      <h2 className="defaultSettingsTitle">Default Settings</h2>
+      <div className='title-icon'>
+        <h2 className="defaultSettingsTitle">Default Settings </h2>
+        <div onMouseMove={handleMouseMove}>
+        <img className='info-icon' src='info.png'onMouseEnter={() => setShowText(true)} onMouseLeave={() => setShowText(false)}/>
+        {showText && (
+          <div 
+            className='info-text'
+            style={{
+              position: 'absolute', 
+              left: position.x - 90, 
+              top: position.y - 250 
+            }}>
+            All changes made in Default Settings will be applied to future properties added or properties that are "Set to Default Settings".
+          </div>
+        )}
+      </div>
+    </div>
       <div>
       <div className='holdingPeriodDefault'>
         <span className='defaultSettingsText' onClick={updateHoldingPeriodInput}>Holding Period (in months):</span>

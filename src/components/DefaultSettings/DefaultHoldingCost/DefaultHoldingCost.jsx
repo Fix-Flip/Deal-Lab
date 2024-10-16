@@ -27,13 +27,13 @@ function DefaultHoldingCost({defaultHoldings}) {
   };
 
   const autoHoldingItemOne = () => {
-    setHoldingName('budgetone')
-    setHoldingCost('10000')
+    setHoldingName('Yard Work')
+    setHoldingCost('150')
   }
 
   const autoHoldingItemTwo = () => {
-    setHoldingName('budgettwo')
-    setHoldingCost('15000')
+    // setHoldingName('budgettwo')
+    // setHoldingCost('15000')
   }
 
 

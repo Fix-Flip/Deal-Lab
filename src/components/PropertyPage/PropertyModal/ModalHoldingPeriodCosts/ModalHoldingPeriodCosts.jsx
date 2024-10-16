@@ -51,12 +51,12 @@ const updateTaxes = (propertyId) => {
   }
 
   const updateHoldingInputOne = () => {
-    setHoldingName('Yard Work')
-    setHoldingItemCost('150')
+    // setHoldingName('Yard Work')
+    // setHoldingItemCost('150')
   }
   const updateHoldingInputTwo = () => {
-    setHoldingName('Utilities')
-    setHoldingItemCost('450')
+    // setHoldingName('Utilities')
+    // setHoldingItemCost('450')
   }
 
   return (
@@ -64,7 +64,7 @@ const updateTaxes = (propertyId) => {
       {Object.keys(propertyOfInterest).length && 
         <>
 
-        <label>Loan Term </label>
+        {/* <label>Loan Term </label>
           <select
             id="demo-simple-select-standard"
             value={loanTerm}
@@ -75,16 +75,17 @@ const updateTaxes = (propertyId) => {
             <option value={20}>20 Yr</option>
             <option value={30}>30 Yr</option>
           </select>
-          <br />
+          <br /> */}
 
-        <label>Interest Rate:</label>
+        {/* <label>Interest Rate:</label>
           <input 
             className="percentage-input"
             value={(mortgageCalculator.interest_rate) + '%' }
           />
         <p className="mortgageCalculatorLoanItems">Loan Interest Rate (Annual): {mortgageCalculator.interest_rate_annual}</p>
         <p className="mortgageCalculatorLoanItems">Loan Interest Rate (Monthly): {mortgageCalculator.interest_rate_monthly}</p>
-        
+         */}
+
         <div className = "property-data">
           <p onClick={holdingPeriodInput}>Holding Period:</p>
             <input 
@@ -121,11 +122,11 @@ const updateTaxes = (propertyId) => {
                 <td className="list-cost">{formattedCurrency(propertyOfInterest.property[0].taxes_yearly/12)}</td>
                 <td className="list-delete"><img onClick={() => {updateTaxes(propertyOfInterest.property[0].id)}} className="deleteBtn" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgy6cH4pk8uBtQ-_MBHx5MtDO8ms62KxR0UQ&s" /></td>
               </tr>
-              <tr>
+              {/* <tr>
                 <td className="list-items">Mortgage Interest:</td> 
                 <td className="list-cost">{mortgageCalculator.interest_payment_monthly}</td>
                 <td className="list-delete"><img className="deleteBtn" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgy6cH4pk8uBtQ-_MBHx5MtDO8ms62KxR0UQ&s" /></td>
-              </tr>
+              </tr> */}
             </div> : ''}
             {propertyOfInterest.holdingItems.map((item) => {
               return (

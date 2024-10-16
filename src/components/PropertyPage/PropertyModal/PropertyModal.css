@@ -118,21 +118,21 @@
 
 /* BUTTONS AT BOTTOM OF MODAL */
 .modal-save-btn {
-  /* display: block; */
   padding: 5px 10px;
   border-width: 1px 1px 3px;
   border-radius: 4px;
   background-color: #343078;
   color: #f8f8f8;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: bold;
   outline: 0;
   cursor: pointer;
   margin: .5rem;
-  /* position: relative; */
   right: -250px;
   width: 120px;
   max-width: auto;
+  height: 50px;
+  max-height: auto;
 }
 
 .modal-save-btn:hover {
@@ -141,20 +141,20 @@
 }
 
 .modal-default-btn {
-  /* display: block; */
-  padding: 5px 10px;
+  padding: 5px 0px;
   border-width: 1px 1px 3px;
   border-radius: 4px;
   background-color: #343078;
   color: #f8f8f8;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: bold;
   outline: 0;
   cursor: pointer;
   margin: .5rem;
-  /* position: relative; */
   width: 120px;
   max-width: auto;
+  height: 50px;
+  max-height: auto;
 }
 
 .modal-default-btn:hover {
@@ -166,10 +166,24 @@
 .grid-container {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Two columns */
-  grid-template-rows: repeat(2, auto); /* Two rows */
+  grid-template-rows: auto auto; /* Two rows */
   gap: 8px; /* Space between items */
   margin-top: 20px; /* Space from address strip */
   padding: 0 10px 10px 10px;
+  width: 100%;
+}
+.grid-container-2 {
+    /* display: grid; */
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    grid-template-rows: auto auto; /* Two rows */
+    margin-top: 20px; /* Space from address strip */
+    padding: 0 10px 10px 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+.container-profit {
+    width: auto;
 }
 
 .section {
@@ -178,8 +192,24 @@
   padding: 15px; /* Padding inside sections */
   background: white; /* Background for the sections */
   box-sizing: border-box;
-  
+  margin-top: -20px;
 }
+.section-profit-estimation{
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 5px; /* Rounded corners for the sections */
+    padding: 15px; /* Padding inside sections */
+    background: white; /* Background for the sections */
+    box-sizing: border-box;
+    width: 100%; /* Adjust to consider padding/borders */
+    max-width: none; /* Remove max-width restriction */
+}
+
+.profit-estimation-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    gap: 10px; /* Space between items */
+}
+  
 
 .section-header {
   font-weight: bold; /* Make text bold */
@@ -238,7 +268,8 @@
 
 .percentage-input {
   width: 50px;
-}
+} /* END MORTGAGE CALCULATOR */
+
 
 /* DELETE BUTTONS WITHIN SECTIONS */
 .deleteBtn {
@@ -307,8 +338,10 @@
 .main-focus{
   background-color: rgb(214, 234, 214);
   border: rgb(85, 84, 84) 2px solid;
-  margin-top: 70px;
+  margin-top: 3px;
+  margin-bottom: 10px;
   border-radius: 5px;
+  padding: 0px 10px;
 }
 
 .center {
@@ -322,4 +355,10 @@
   flex-direction: row;
   justify-content: space-between;
   /* align-items: center; */
+}
+
+.info-icon-data {
+    width: 15px;
+    height: 15px;
+    margin-top: 20px;
 }

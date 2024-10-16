@@ -6,7 +6,8 @@ export const StyledMenu = styled.nav`
   justify-content: center;
 
   background: ${({ theme }) => theme.primaryLight};
-  height: 40vh;
+  height: 55vh;
+  max-height: 400px;
   width: 250px; /* Set the desired width */
   max-width: 300px; /* Optional max-width */
   text-align: left;

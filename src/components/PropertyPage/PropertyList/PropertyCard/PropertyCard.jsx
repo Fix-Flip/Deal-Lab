@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2'
 import './PropertyCard.css';
 
-function PropertyCard({ property, userId, onOpenModal, allRepairItems, allHoldingItems }) {
+function PropertyCard({ property, userId, onOpenModal, allRepairItems, allHoldingItems}) {
   const dispatch = useDispatch();
 
   //getPropertyOfInterest function runs when the user clicks "edit" or
@@ -15,6 +15,7 @@ function PropertyCard({ property, userId, onOpenModal, allRepairItems, allHoldin
       type: 'GET_PROPERTY_OF_INTEREST',
       payload: propId
     });
+    
   }
 
   //deleteProperty function runs when the user clicks "delete". 
