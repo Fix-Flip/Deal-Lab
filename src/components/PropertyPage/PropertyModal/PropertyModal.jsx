@@ -5,12 +5,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import ModalUpfrontCosts from './ModalUpfrontCosts/ModalUpfrontCosts'; // Import your specific components
 import ModalHoldingPeriodCosts from './ModalHoldingPeriodCosts/ModalHoldingPeriodCosts';
 import ModalProfitEstimation from './ModalProfitEstimation/ModalProfitEstimation';
-import ModalMortgageCalculator from './ModalMortgageCalculator/ModalMortgageCalculator';
 import Swal from 'sweetalert2';
 
 
 const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedProperty }) => {
-
+  
   const dispatch = useDispatch();
 
   const propertyOfInterest = useSelector((store) => store.propertyOfInterest);
@@ -21,7 +20,7 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
   const [closingCostsUpdate, setClosingCostsUpdate] = useState('')
   const [closingCostsPercentageUpdate, setClosingCostsPercentageUpdate] = useState('')
   
-  
+//Checks if the modal is open
   useEffect(() => {
     
     if (isOpen) {
@@ -37,6 +36,7 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
 
   if (!isOpen) return null;
 
+  //runs when the user clicks "set back to default"
   const handleBackToDefault = () => {
     Swal.fire({
       title: "Are you sure you want to apply the Default Settings?",
@@ -45,9 +45,10 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
       showCancelButton: true,
       confirmButtonText: "Yes, apply default settings",
       cancelButtonText: "Cancel",
-      // reverseButtons: true
     }).then((result) => {
     if (result.isConfirmed) {
+      //user confirms they want to set back to default
+      //dispatch sent to properties saga
     dispatch({
       type: 'UPDATE_BACK_TO_DEFAULT',
       payload: propertyOfInterest.property[0].id
@@ -60,7 +61,7 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
     });
   }
   else if (
-    /* Read more about handling dismissals below */
+    //if the user cancels request
     result.dismiss === Swal.DismissReason.cancel
   ) {
     Swal.fire({
@@ -72,7 +73,8 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
   }
 });
   }
-
+  
+  //runs when the user clicks the "save" button
   //sends a dispatch to the properties saga
   const saveUpdatedPropertyInfo = () => {
     dispatch({
@@ -117,12 +119,12 @@ const formattedCurrency = (value) => {
         </div>
         <div className = "modal-buttons">
           <button className="modal-default-btn" onClick={handleBackToDefault}>Set to Default Settings</button>
-          {/* {Object.keys(propertyOfInterest).length && 
+          {Object.keys(propertyOfInterest).length && 
           <div className = "main-focus">
             <p className='bold-text section-totals center' >Monthly Profit: {formattedCurrency(propertyOfInterest.property[0].monthly_profit)}</p>
             <p  className="calculation-explanation center">(Profit / Holding Period)</p>
           </div>
-          } */}
+          }
           <button className="modal-save-btn" onClick={saveUpdatedPropertyInfo}>Save</button>
         </div>
         <div className="modal-body">
@@ -139,11 +141,6 @@ const formattedCurrency = (value) => {
             <h3 className='section-header'>Holding Period Costs</h3>
             <ModalHoldingPeriodCosts />
           </div>
-
-          {/* <div className='section mortgage-calculator'>
-            <h3 className='section-header'>Mortgage Calculator</h3>
-            <ModalMortgageCalculator />
-          </div> */}
 
           <div className='section-profit-estimation' style={{ gridColumn: '1 / -1' }}>
             <h3 className='section-header'>Profit Estimation</h3>

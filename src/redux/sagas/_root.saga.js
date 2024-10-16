@@ -6,7 +6,6 @@ import propertiesSaga from './properties.saga';
 import propertyHoldingItemsSaga from './propertyHoldingItems.saga';
 import propertyRepairItemsSaga from './propertyRepairItems.saga';
 import defaultSettingsSaga from './defaultSettings.saga';
-import mortgageCalculatorSaga from './mortgageCalculator.saga';
 
 // rootSaga is the primary saga.
 // It bundles up all of the other sagas so our project can use them.
@@ -24,6 +23,5 @@ export default function* rootSaga() {
     propertyHoldingItemsSaga(),
     propertyRepairItemsSaga(),
     defaultSettingsSaga(),
-    mortgageCalculatorSaga()
   ]);
 }

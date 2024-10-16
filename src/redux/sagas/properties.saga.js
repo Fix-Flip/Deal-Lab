@@ -1,10 +1,11 @@
 import { put, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 
+//runs upon properties page load
 function* getProperties(action) {
   const userId = action.payload;
   try {
-    const response = yield axios.get(`/api/properties/${userId}`)
+    const response = yield axios.get(`/api/properties/`)
     yield put({
       type: 'SET_PROPERTIES',
       payload: response.data
@@ -15,13 +16,14 @@ function* getProperties(action) {
 }
 
 
+//adds a property to the database
 function* addProperty(action) {
-  console.log('Payload data:', action.payload);
   const address = action.payload.address;
   const userId = action.payload.userId
   const addressId = action.payload.addressId
   try {
     const response = yield axios.post(`api/properties`, {address:address, addressId: addressId})
+
     console.log('addProperty data:', response.data);
 
     yield put({
@@ -29,7 +31,8 @@ function* addProperty(action) {
       payload: response.data
     })
     console.log('SET_CALCULATIONS worked!');
-    
+
+
     yield put({
         type: 'GET_PROPERTIES',
         payload: userId
@@ -41,13 +44,12 @@ function* addProperty(action) {
 }
 
 
+//deletes a property from the database
 function* deleteProperty(action) {
-  // console.log('deleteProperty saga received a dispatch: ', action.payload)
   const propertyId = action.payload.propertyId;
   const userId = action.payload.userId;
   try {
     const response = yield axios.delete(`/api/properties/${propertyId}`)
-    // console.log('response from server is delete property route: ', response.data)
     yield put({
       type: 'GET_PROPERTIES',
       payload: userId
@@ -62,7 +64,6 @@ function* deleteProperty(action) {
 //receives updated property information, sends the infomaiton to the server,
 //and gets new property and properties 
 function* updateProperty(action) {
-  console.log('in update property: ', action.payload)
   try {
     //sends a put request to to the properties router
     yield axios.put(`api/properties`, action.payload)
@@ -80,16 +81,12 @@ function* updateProperty(action) {
 }
 
 
+//sets the repair and holding items for a specific property equal to the default settings items
 function* updateBackToDefault(action) {
-  // console.log('Payload for back to default:', action.payload);
   const propertyId = action.payload;
   try {
       const response = yield axios.put(`/api/properties/backToDefault/${propertyId}`)
-      console.log('UPDATE DEFAULT DATA:', response.data);
-      
-
-      // ========================== IF CALLING API IN ROUTE ==========================
-      yield put({
+            yield put({
         type: 'GET_PROPERTY_OF_INTEREST',
         payload: propertyId
       })
@@ -106,7 +103,6 @@ function* getPropertyOfInterest(action) {
   try {
     //to properties.router.js with the property id as a paramater
     const response = yield axios.get(`/api/properties/propertyOfInterest/${action.payload}`);
-    console.log('response from /api/properties/propertyOfInterest/id route: ', response.data);
     yield put({ type: 'SET_PROPERTY_OF_INTEREST', payload: response.data });
   } catch (error) {
     console.log('getPropertyOfInterest get request failed', error);
@@ -114,8 +110,8 @@ function* getPropertyOfInterest(action) {
 }
 
 
+//sets property taxes equal to zero
 function* updatePropertyTaxes(action) {
-  console.log('in update property taxes: ', action.payload)
   try {
     yield axios.put(`/api/properties/taxes`, {propertyId: action.payload})
     yield put({
@@ -128,10 +124,10 @@ function* updatePropertyTaxes(action) {
 }
 
 
+//gets properties by specified filter
 function* getPropertiesFiltered(action) {
   try {
     const response = yield axios.get(`/api/properties/filtered/${action.payload.orderBy}/${action.payload.arrange}`)
-    console.log('response from server in get proeprties filtered: ', response.data)
     yield put({
       type: 'SET_PROPERTIES_FILTERED',
       payload: response.data

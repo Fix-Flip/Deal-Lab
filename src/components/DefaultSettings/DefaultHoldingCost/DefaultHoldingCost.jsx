@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-// import '../PropertyPage/PropertyModal/PropertyModal.css';
 
 function DefaultHoldingCost({defaultHoldings}) {
   const dispatch = useDispatch();
   const [holdingName, setHoldingName] = useState('');
   const [holdingCost, setHoldingCost] = useState('');
 
+  //runs when the user clicks "add" next to holding item
   const addDefaultHoldingItem = () => {
     dispatch({
       type: 'ADD_DEFAULT_HOLDING_ITEM',
@@ -26,23 +26,10 @@ function DefaultHoldingCost({defaultHoldings}) {
     return ` $${number.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
-  const autoHoldingItemOne = () => {
-    setHoldingName('Yard Work')
-    setHoldingCost('150')
-  }
-
-  const autoHoldingItemTwo = () => {
-    // setHoldingName('budgettwo')
-    // setHoldingCost('15000')
-  }
-
-
-// Getting error for not having an unique key prop.
-// Might not recognize 'default_holding_id' as an id.
   return (
     <div className='defaultHolding'>
       <form className='defaultHoldingForm'>
-        <label className='defaultSettingsText'> <span onClick={autoHoldingItemOne}>Holding Period</span> <span onClick={autoHoldingItemTwo}> Costs (per month):</span></label>
+        <label className='defaultSettingsText'> Holding PeriodCosts (per month):</label>
         <br />
         <input className='defaultHoldingNameInput'
                 type='text'

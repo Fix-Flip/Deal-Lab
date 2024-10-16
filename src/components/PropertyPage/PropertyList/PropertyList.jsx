@@ -15,13 +15,8 @@ function PropertyList({ userId, onOpenModal }) {
       payload: userId 
     })
   }, [])
-
-
-
-  console.log('allProperties data:', allProperties);
   
   return (
-    // HERE IS MY TESTTTTT
     <div className="container">
       
       <p>Click on an address for more details.</p>

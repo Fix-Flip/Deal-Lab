@@ -28,14 +28,10 @@ function PropertySearchForm({userId}) {
     loadScript();
   }, []);
   
-  
+  //runs when the user clicks "add"
   //sends the formattedAddress to the properties.saga
   const addAddress = (e) => {
     e.preventDefault();
-    // ************* THIS GOES IN PAYLOAD.ADDRESS: formattedAddress
-    console.log('searchBar address:', searchBarAddress);
-    console.log('formattedAddress:', formattedAddress);
-    
     
     dispatch ({
         type: 'ADD_PROPERTY',
@@ -54,15 +50,17 @@ function PropertySearchForm({userId}) {
     //runs when the user clicks on an address from the dropdown menu
     const handleChange = (address) => {
       setSearchBarAddress(address);
+      //saves the google address place_id as a unique identifier
       setAddressId(address.value.place_id);
+      //geocodeByPlaceId gets the zip code which is needed for the Rentcase API
       geocodeByPlaceId(address.value.place_id)
         .then(results => setFormattedAddress(results[0].formatted_address))
         .catch(error => console.error('error getting geocodeByPlaceId', error));
     }
 
+    //runs when the user changes the sort by option
     const handleFilterChange = (event) => {
       let filter = event.target.value
-      console.log(filter)
       setFilterOption(filter);
       switch (filter) {
         case 'add_order':
@@ -93,41 +91,11 @@ function PropertySearchForm({userId}) {
       }
     }
 
-    const inputPropOne = () => {
-      navigator.clipboard.writeText('2115 Burke')
-        .then(() => {
-          console.log('text copied to clipboard');
-        })
-        .catch(err => {
-          console.log('failed to copy: ', err);
-        });
-    }
-
-    const inputPropTwo = () => {
-      navigator.clipboard.writeText('12505')
-        .then(() => {
-          console.log('text copied to clipboard');
-        })
-        .catch(err => {
-          console.log('failed to copy: ', err);
-        });
-    }
-
-    const inputPropThree = () => {
-      navigator.clipboard.writeText('4008 5th')
-        .then(() => {
-          console.log('text copied to clipboard');
-        })
-        .catch(err => {
-          console.log('failed to copy: ', err);
-        });
-    }
-
 
   return (
     <div className="container">
 
-      <p><span onClick={inputPropOne}>Search </span> for a <span onClick={inputPropTwo}>property</span> you might <span onClick={inputPropThree}>fix & flip:</span></p>
+      <p>Search for a property you might fix & flip:</p>
 
       <div className = "search-form">
       {isLoaded ? (  

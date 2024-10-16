@@ -1,12 +1,13 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useDispatch} from 'react-redux';
 
 function DefaultRepairItems({defaultRepairs}) {
   const dispatch = useDispatch();
   const [repairName, setRepairName] = useState('');
   const [repairCost, setRepairCost] = useState('');
 
+  //runs when the user clicks "add" next to repair item
   const addDefaultRepairItem = () => {
     dispatch({
       type: 'ADD_DEFAULT_REPAIR_ITEM',
@@ -25,20 +26,10 @@ function DefaultRepairItems({defaultRepairs}) {
     return ` $${number.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
-  const autoRepairItemOne = () => {
-    setRepairName('Budget')
-    setRepairCost('15000')
-  }
-
-  const autoRepairItemTwo = () => {
-    // setRepairName('budgettwo')
-    // setRepairCost('15000')
-  }
-
   return (
     <div className='defaultRepair'>
       <form className='defaultRepairForm'>
-        <label className='defaultSettingsText'><span onClick={autoRepairItemOne}>Repair</span> <span onClick={autoRepairItemTwo}>Items:</span></label><br />
+        <label className='defaultSettingsText'>Repair Items:</label><br />
         <input className='defaultRepairNameInput'
                 type='text'
                 placeholder='Repair Name'

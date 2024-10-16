@@ -33,9 +33,9 @@ function DefaultSettings() {
     dispatch({
       type: "GET_DEFAULTS"
     })
-    console.log('default repairs are : ', defaultRepairs)
   }, [defaultSettingsId])
 
+  //runs when the user clicks "save" next to the holding period
   const updateHoldingPeriod = () => {
     dispatch({
       type: 'UPDATE_DEFAULT_HOLDING_PERIOD',
@@ -50,15 +50,9 @@ function DefaultSettings() {
     });
   }
 
-  // console.log('defaultSettings data:', defaultSettings);
-  // console.log('user data:', user);
-  const updateHoldingPeriodInput = () => {
-    // setHoldingPeriod('4')
-  }
-
+  //tracks the mouse position for the onHover info icon
   const handleMouseMove = (e) => {
     setPosition({ x: e.clientX, y: e.clientY });
-    // console.log('handlemousemove', e.clientX, e.clientY)
   };
 
   return (
@@ -82,7 +76,7 @@ function DefaultSettings() {
     </div>
       <div>
       <div className='holdingPeriodDefault'>
-        <span className='defaultSettingsText' onClick={updateHoldingPeriodInput}>Holding Period (in months):</span>
+        <span className='defaultSettingsText'>Holding Period (in months):</span>
         <input className='holdingPeriodInput'
               type='number'
               value={holdingPeriod}

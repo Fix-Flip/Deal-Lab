@@ -1,8 +1,8 @@
 import { put, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 
+//runs when "add" is clicked in modal next to repair item
 function* addPropertyRepairItem(action) {
-  console.log('addPropertyRepairItem received a dispatch!', action.payload)
   try {
     yield axios.post(`api/properties/repairItem`, action.payload)
     yield put({
@@ -14,6 +14,8 @@ function* addPropertyRepairItem(action) {
   }
 }
 
+
+//runs when trash can is clicked in modal next to repair item
 function* deletePropertyRepairItem(action) {
   try {
     yield axios.delete(`api/properties/repairItem/${action.payload.itemId}`)
@@ -25,6 +27,7 @@ function* deletePropertyRepairItem(action) {
     console.log('Error deleting property repair item:', error);
   }
 }
+
 
 function* propertyRepairItemsSaga() {
     yield takeLatest('ADD_PROPERTY_REPAIR_ITEM', addPropertyRepairItem);

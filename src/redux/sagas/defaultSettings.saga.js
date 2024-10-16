@@ -1,10 +1,10 @@
 import { put, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 
+//runs upon default settings page load
 function* getDefaults(action) {
   try {
     const response = yield axios.get('/api/defaultSettings')
-    console.log('RESPONSE DATA:', response.data);
     
     yield put({
       type: 'SET_DEFAULTS',
@@ -16,9 +16,10 @@ function* getDefaults(action) {
   }
 }
 
+
+//runs when "save" next to default holding period is clicked
 function* updateDefaultHoldingPeriod(action) {
   const holdingPeriod = action.payload;
-  console.log('New holding period:', holdingPeriod);
   try {
     yield axios.put(`/api/defaultSettings/`, {holdingPeriod})
     yield put({
@@ -29,6 +30,8 @@ function* updateDefaultHoldingPeriod(action) {
   }
 }
 
+
+//runs when "add" is clicked on default holding item 
 function* addDefaultHoldingItem(action) {
   const holdingName = action.payload.holdingName;
   const holdingCost = action.payload.holdingCost;
@@ -42,6 +45,8 @@ function* addDefaultHoldingItem(action) {
   }
 }
 
+
+//runs when trash can next to default holding item is clicked
 function* deleteDefaultHoldingItem(action) {
   const holdingId = action.payload;
   try {
@@ -54,6 +59,8 @@ function* deleteDefaultHoldingItem(action) {
   }
 }
 
+
+//runs when "add" next to default repair items is clicked
 function* addDefaultRepairItem(action) {
   const repairName = action.payload.repairName;
   const repairCost = action.payload.repairCost;
@@ -67,9 +74,10 @@ function* addDefaultRepairItem(action) {
   }
 }
 
+
+//runs when trash can next to repair item is clicked
 function* deleteDefaultRepairItem(action) {
   const repairId = action.payload;
-  console.log('in deleteDefaultRepairItem', action.payload)
   try {
     yield axios.delete(`/api/defaultSettings/repairItem/${repairId}`)
     yield put({
@@ -79,6 +87,7 @@ function* deleteDefaultRepairItem(action) {
     console.log('Error deleting default repair item:', error);
   }
 }
+
 
 function* defaultSettingsSaga() {
     yield takeLatest('GET_DEFAULTS', getDefaults);
@@ -91,4 +100,3 @@ function* defaultSettingsSaga() {
   
   export default defaultSettingsSaga;
 
-  // url for default => '/api/defaultSettings'

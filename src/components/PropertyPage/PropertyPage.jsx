@@ -11,19 +11,23 @@ import Swal from 'sweetalert2';
 function PropertyPage({ userId }) {
   
   const user = useSelector((store) => store.user);
+
+  //variables for the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
-  // const [dataFromDatabase, setDataFromDatabase] = useState({})
 
+  //when the user clicks on a property card
   const handleOpenModal = (property) => {
     setSelectedProperty(property);
     setIsModalOpen(true);
   };
 
+  //When the 'x' is clicked to close the modal
   const handleCloseModal = (propertyOfInterest, dataFromDatabase) => {
-  //  console.log('properyofinterest: ', propertyOfInterest)
-  //   console.log('datafromdatabase: ', dataFromDatabase)
+    
+    //dataFromDatabase is saved upon modal open
     const purchasePriceFromDatabase = dataFromDatabase.purchase_price
+    //purchase price is the current input in the modal purchase price
     const purchasePrice = propertyOfInterest.property[0].purchase_price
 
     const holdingPeriodFromDatabase = dataFromDatabase.holding_period
@@ -36,6 +40,9 @@ function PropertyPage({ userId }) {
     let formattedPurchasePrice = '';
     let breakConditionDatabase = false;
     let breakCondition = false;
+
+    //reformats the purchase price so the purchase price from the 
+    //database and the reducer are rounded to the whole number
     for(let char of purchasePriceFromDatabase) {
       if(char === ".") {
         breakConditionDatabase = true;
@@ -73,8 +80,9 @@ function PropertyPage({ userId }) {
       }
     }
 
-    // console.log('formattedpurchasepricefromdatabase: ', formattedPurchasePriceFromDatabase, formattedPurchasePrice)
+    //checks if the purchase price, holding period, or after repair value need to be saved 
     if(formattedPurchasePrice != formattedPurchasePriceFromDatabase || holdingPeriodFromDatabase != holdingPeriod || formattedAfterRepairValue != formattedAfterRepairValueFromDatabase) {
+      //if there are unsaved changes a sweet alert prompts the user to save their changes
       Swal.fire({
         title: "Your changes aren't saved",
         text: "Do you want to close without saving?",
@@ -91,6 +99,7 @@ function PropertyPage({ userId }) {
         }})
     }
     else {
+      //if there are no unsaved changes, the modal closes
       setIsModalOpen(false);
       setSelectedProperty(null);
     }
@@ -98,9 +107,11 @@ function PropertyPage({ userId }) {
   
   return (
     <div className="container">
-      {/* <h2>Welcome, {user.username}!</h2> */}
+      {/* Contains the google address autocomplete, add button, and sort by feature */}
       <PropertySearchForm userId={userId}/>
+      {/* Contains the property cards */}
       <PropertyList userId={userId} onOpenModal={handleOpenModal} />
+      {/* The modal that appears when the property card is clicked */}
       <PropertyModal 
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -110,5 +121,4 @@ function PropertyPage({ userId }) {
   );
 }
 
-// this allows us to use <App /> in index.js
 export default PropertyPage;

@@ -4,7 +4,6 @@ import user from './user.reducer';
 import allProperties from './AllProperties.reducer';
 import defaultSettings from './defaultSettings.reducer';
 import propertyOfInterest from './propertyOfInterest.reducer';
-import mortgageCalculator from './mortgageCalculator.reducer';
 
 // rootReducer is the primary reducer for our entire project
 // It bundles up all of the other reducers so our project can use them.
@@ -18,7 +17,6 @@ const rootReducer = combineReducers({
   allProperties,
   defaultSettings,
   propertyOfInterest,
-  mortgageCalculator
 });
 
 export default rootReducer;

@@ -8,7 +8,7 @@ const formattedCurrency = (value) => {
     return `$${number.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 };
 
-// ===================== INTEREST RATE/CALCULATOR =====================
+// ===================== Interest Rate/Calculator =====================
 /**
  * POST && API call: addCalculations
  */
@@ -324,7 +324,7 @@ router.put('/:id', async (req, res) => {
 })
 
 
-// ===================== HELPER FUNCTIONS =====================
+// ===================== Helper Functions =====================
 /**
  * ----- For POST && API call: addCalculations
  */

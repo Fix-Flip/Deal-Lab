@@ -11,7 +11,6 @@ const passport = require('./strategies/user.strategy');
 const userRouter = require('./routes/user.router');
 const propertiesRouter = require('./routes/properties.router');
 const defaultSettingsRouter = require('./routes/defaultSettings.router');
-const mortgageCalculatorRouter = require('./routes/mortgageCalculator.router');
 
 // Express Middleware
 app.use(express.json());
@@ -29,7 +28,6 @@ app.use(passport.session());
 app.use('/api/user', userRouter);
 app.use('/api/properties', propertiesRouter);
 app.use('/api/defaultSettings', defaultSettingsRouter);
-app.use('/api/mortgageCalculator', mortgageCalculatorRouter);
 
 // Listen Server & Port
 app.listen(PORT, () => {

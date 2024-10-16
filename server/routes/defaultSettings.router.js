@@ -1,12 +1,16 @@
 const express = require('express');
+const {
+  rejectUnauthenticated,
+} = require('../modules/authentication-middleware');
 const pool = require('../modules/pool');
 const router = express.Router();
 
 
+// ===================== Default =====================
 /**
- * GET defaults
+ * ----- GET defaults: getDefaults
  */
-router.get('/', async (req, res) => {
+router.get('/', rejectUnauthenticated, async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -15,7 +19,6 @@ router.get('/', async (req, res) => {
         WHERE "user_id" = $1;
     `
     const defaultHoldingsResponse = await pool.query(defaultHoldingsSqlText, [userId]);
-    // console.log('defaultHoldingsResponse.rows DATA:', defaultHoldingsResponse.rows);
     const defaultHoldings = defaultHoldingsResponse.rows;
 
     const defaultRepairsSqlText = `
@@ -36,9 +39,9 @@ router.get('/', async (req, res) => {
 
 
 /**
- * PUT default holding period
+ * ----- PUT default holding period: updateDefaultHoldingPeriod
  */
-router.put('/', (req, res) => {
+router.put('/',rejectUnauthenticated, (req, res) => {
   const userId = req.user.id;
   const holdingPeriod = req.body.holdingPeriod;
 
@@ -49,7 +52,6 @@ router.put('/', (req, res) => {
   `
   pool.query(sqlText, [holdingPeriod, userId])
   .then((results) => {
-    console.log('Default holding period updated');
     res.sendStatus(200);
   }) .catch((error) => {
     console.log('Error updating default holding period:', error);
@@ -58,11 +60,11 @@ router.put('/', (req, res) => {
 });
 
 
+// ===================== Holding Item =====================
 /**
- * POST default holding item: addDefaultHoldingItem
+ * ----- POST default holding item: addDefaultHoldingItem
  */
-router.post('/holdingItem', (req, res) => {
-  console.log('req.body:', req.body);
+router.post('/holdingItem',rejectUnauthenticated, (req, res) => {
   const holdingName = req.body.holdingName;
   const holdingCost = req.body.holdingCost;
   const userId = req.user.id;
@@ -75,7 +77,6 @@ router.post('/holdingItem', (req, res) => {
   `
   pool.query(sqlText, [userId, holdingName, holdingCost])
   .then((results) => {
-    console.log('New default holding item has been added');
     res.sendStatus(201);
   }) .catch((error) => {
     console.log('Error adding new default holding item:', error);
@@ -86,9 +87,9 @@ router.post('/holdingItem', (req, res) => {
 
 
 /**
- * DELETE default holding item
+ * ----- DELETE default holding item: deleteDefaultHoldingItem
  */
-router.delete('/holdingItem/:id', (req, res) => {
+router.delete('/holdingItem/:id',rejectUnauthenticated, (req, res) => {
   const holdingId = req.params.id;
   const userId = req.user.id;
 
@@ -99,7 +100,6 @@ router.delete('/holdingItem/:id', (req, res) => {
   `
   pool.query(sqlText, [holdingId, userId])
   .then((results) => {
-    console.log('Default holding item deleted');
     res.sendStatus(200);
   }) .catch((error) => {
     console.log('Error deleting default holding item:', error);
@@ -108,11 +108,11 @@ router.delete('/holdingItem/:id', (req, res) => {
 });
 
 
+// ===================== Repair Item =====================
 /**
- * POST default repair item: addDefaultRepairItem
+ * ----- POST default repair item: addDefaultRepairItem
  */
-router.post('/repairItem', (req, res) => {
-  console.log('req.body:', req.body);
+router.post('/repairItem',rejectUnauthenticated, (req, res) => {
   const repairName = req.body.repairName;
   const repairCost = req.body.repairCost;
   const userId = req.user.id;
@@ -125,7 +125,6 @@ router.post('/repairItem', (req, res) => {
   `
   pool.query(sqlText, [userId, repairName, repairCost])
   .then((results) => {
-    console.log('New default repair item has been added');
     res.sendStatus(201);
   }) .catch((error) => {
     console.log('Error adding new default repair item:', error);
@@ -135,9 +134,9 @@ router.post('/repairItem', (req, res) => {
 
 
 /**
- * DELETE default repair item
+ * ----- DELETE default repair item: deleteDefaultRepairItem
  */
-router.delete('/repairItem/:id', (req, res) => {
+router.delete('/repairItem/:id',rejectUnauthenticated, (req, res) => {
     const repairId = req.params.id;
     const userId = req.user.id;
 
@@ -148,7 +147,6 @@ router.delete('/repairItem/:id', (req, res) => {
     `
     pool.query(sqlText, [repairId, userId])
     .then((results) => {
-      console.log('Default repair item deleted');
       res.sendStatus(200);
     }) .catch((error) => {
       console.log('Error deleting default repair item:', error);
@@ -156,35 +154,5 @@ router.delete('/repairItem/:id', (req, res) => {
     })
 });
 
-
-/**
- * PUT back to default
- */
-router.put('/:userId/:propertyId', (req, res) => {
-  // PUT route code here
-});
-
-
-
-
 module.exports = router;
 
-// const sqlText = `
-// SELECT "default_holdings".id AS "default_holding_id", "default_holdings".holding_name, "default_holdings".holding_cost,
-//   "default_repairs".id AS "default_repair_id", "default_repairs".repair_name, "default_repairs".repair_cost,
-//   "user".holding_period_default
-//   FROM "default_holdings"
-//   JOIN "user"
-//     ON "user".id = "default_holdings".user_id
-//   JOIN "default_repairs"
-//     ON "default_repairs".user_id = "user".id
-//   WHERE "user".id = $1;
-// `
-// pool.query(sqlText, [userId])
-// .then((results) => {
-//   console.log('Get all default settings');
-//   res.send(results.rows)
-// }) .catch((error) => {
-//   console.log('Error getting default settings:', error);
-//   res.sendStatus(500);
-// })

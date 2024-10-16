@@ -3,9 +3,12 @@ import {useSelector, useDispatch} from 'react-redux';
 import { useState } from 'react';
 
 function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate, setClosingCostsUpdate, setClosingCostsPercentageUpdate}) {
+  
   const dispatch = useDispatch();
+  
   const propertyOfInterest = useSelector((store) => store.propertyOfInterest);
   const mortgageCalculator = useSelector(store => store.mortgageCalculator);
+
 
   const [repairName, setRepairName] = useState("");
   const [repairItemCost, setRepairItemCost] = useState("");
@@ -13,14 +16,10 @@ function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate
   const [showLoanText, setShowLoanText] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  // const totalDownClosing = (Object.keys(mortgageCalculator).length && 
-  //       (Number(mortgageCalculator.down_payment.replace(/[^0-9.-]+/g, "")) +
-  //       Number(mortgageCalculator.closing_costs.replace(/[^0-9.-]+/g, ""))))
-  // console.log('totalDownClosing:', totalDownClosing);
-
-  const purchasePrice = (Object.keys(propertyOfInterest).length && propertyOfInterest.property[0].purchase_price);
   const propertyId = (Object.keys(propertyOfInterest).length && propertyOfInterest.property[0].id)
 
+
+//runs when the user clicks "add" on the repair item
   const addRepairItem = () => {
       dispatch ({
           type: 'ADD_PROPERTY_REPAIR_ITEM',
@@ -29,7 +28,7 @@ function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate
       setRepairName("");
       setRepairItemCost("");
   }
-
+  // runs when the user clicks the trash can on the delete button
   const deleteRepairItem = (itemId) => {
     dispatch ({
         type: 'DELETE_PROPERTY_REPAIR_ITEM',
@@ -42,11 +41,11 @@ function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate
     return `$${number.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
-  const handleMouseMove = (e) => {
-    setPosition({ x: e.clientX, y: e.clientY });
-  };
 
-  console.log('mortgageCalculator data:', mortgageCalculator);
+//tracks the location of the mouse for the onhover text appearance
+const handleMouseMove = (e) => {
+  setPosition({ x: e.clientX, y: e.clientY });
+};
 
   return (
     <div className="container">
@@ -55,6 +54,7 @@ function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate
 
         {/* Info Icon */}
         <div className = "property-data">
+          {/* This is the more info that appears on hover next to purchase price */}
 
           <div onMouseMove={handleMouseMove}>
             <img className='info-icon-data' src='info.png'onMouseEnter={() => setShowText(true)} onMouseLeave={() => setShowText(false)}/>
@@ -81,6 +81,7 @@ function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate
           />
         </div>
 
+        {/* Calculator */}
         <label>Down Payment:</label>
         <div className="label">
           <input 
@@ -171,7 +172,8 @@ function ModalUpfrontCosts({setDownPaymentUpdate, setDownPaymentPercentageUpdate
             <label> % </label>
           </div>
         </div>
-
+        
+        {/* Repair Items */}
         <div className = 'item-form'>
           <input 
             type='text'
