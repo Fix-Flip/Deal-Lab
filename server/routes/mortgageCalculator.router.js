@@ -10,7 +10,7 @@ const formattedCurrency = (value) => {
 
 // ===================== INTEREST RATE/CALCULATOR =====================
 /**
- * POST interest rate from API && send data
+ * POST && API call: addCalculations
  */
 router.post('/:id', async (req, res) => {
     const api_key = process.env.MORTGAGE_CALCULATOR_API_KEY;
@@ -200,8 +200,9 @@ router.post('/:id', async (req, res) => {
     }
 })
 
+
 /**
- * PUT update calculations
+ * PUT calculations: updateCalculations
  */
 router.put('/:id', async (req, res) => {
     const api_key = process.env.MORTGAGE_CALCULATOR_API_KEY;
@@ -262,7 +263,6 @@ router.put('/:id', async (req, res) => {
         // console.log('newMortgageCalculationsDataObject:', newMortgageCalculationsDataObject);
 
         interestRate = newMortgageCalculationsDataObject.interestRate;
-        // loanTerm = newMortgageCalculationsDataObject.loanTerm;
         downPayment = newMortgageCalculationsDataObject.downPayment;
         downPaymentPercentage = newMortgageCalculationsDataObject.downPaymentPercentage;
         baseLoanAmount = newMortgageCalculationsDataObject.baseLoanAmount;
@@ -323,124 +323,11 @@ router.put('/:id', async (req, res) => {
     }
 })
 
+
+// ===================== HELPER FUNCTIONS =====================
 /**
-* PUT update input calculations
-*/
-router.put('/inputs/:id', async (req, res) => {
-    const userId = req.user.id;
-    const propertyId = req.params.id;
-    const input = req.body.input;
-
-    let downPayment;
-    let downPaymentPercentage;
-    let closingCosts;
-    let closingCostsPercentage;
-
-    console.log('req.body data:', req.body);
-    let connection;
-    let sqlText;
-    let sqlResponse;
-
-    try {
-        connection = await pool.connect()
-        await connection.query('BEGIN;')
-
-        if (input === 'downPayment' || input === 'downPaymentPercentage') {
-            downPayment = req.body.downPayment;
-            downPaymentPercentage = req.body.downPaymentPercentage / 100;
-
-            sqlText = `
-                UPDATE "mortgage_calculations"
-                    SET "down_payment" = $1, "down_payment_percentage" = $2
-                    WHERE "property_id" = $3;
-            `
-            sqlResponse = await connection.query(sqlText, [downPayment, downPaymentPercentage, propertyId])
-        } else if (input === 'closingCosts' || input === 'closingCostsPercentage') {
-            closingCosts = req.body.closingCosts;
-            closingCostsPercentage = req.body.closingCostsPercentage / 100;
-
-            sqlText = `
-                UPDATE "mortgage_calculations"
-                    SET "closing_costs" = $1, "closing_costs_percentage" = $2
-                    WHERE "property_id" = $3;
-            `
-            sqlResponse = await connection.query(sqlText, [closingCosts, closingCostsPercentage, propertyId])
-        }
-    
-        console.log('Calculations updated!', sqlResponse.rows);
-        await connection.query('Commit;')
-        res.sendStatus(200);
-
-    } catch (error) {
-        console.log('Update caculations failed:', error);
-        await connection.query('Rollback;')
-        res.sendStatus(500);
-    } finally {
-        await connection.release()
-    }
-})
-
-function checkmortgageCalculationsData(userData, databaseData, price) {
-    const interestRate = databaseData.interest_rate;
-    let downPayment;
-    let downPaymentPercentage;
-    let closingCosts;
-    let closingCostsPercentage;
-
-    if (userData.down_payment === '') {
-        if (userData.down_payment_percentage != '') {
-            console.log('userData.down_payment_percentage:', userData.down_payment_percentage);
-            downPayment = (userData.down_payment_percentage / 100) * price
-        } else {
-            downPayment = databaseData.down_payment;
-        }
-    } else if (userData.down_payment != '') {
-        downPayment = userData.down_payment;
-    }
-
-    if (userData.down_payment_percentage === '') {
-        if (userData.down_payment != '') {
-            console.log('userData.down_payment:', userData.down_payment);
-            downPaymentPercentage = userData.down_payment / price
-        } else {
-            downPaymentPercentage = databaseData.down_payment_percentage;
-        }
-    } else if (userData.down_payment_percentage != '') {
-        downPaymentPercentage = userData.down_payment_percentage / 100
-    }
-
-    if (userData.closing_costs === '') {
-        if (userData.closing_costs_percentage != '') {
-            closingCosts = (userData.closing_costs_percentage / 100) * price
-        } else {
-            closingCosts = databaseData.closing_costs;
-        }
-    } else if (userData.closing_costs != '') {
-        closingCosts = userData.closing_costs;
-    }
-
-    if (userData.closing_costs_percentage === '') {
-        if (userData.closing_costs != '') {
-            closingCostsPercentage = userData.closing_costs / price
-        } else {
-            closingCostsPercentage = databaseData.closing_costs_percentage;
-        }
-    } else if (userData.closing_costs_percentage != '') {
-        closingCostsPercentage = userData.closing_costs_percentage / 100
-    }
-
-    let baseLoanAmount = price - downPayment;
-    return data = {
-        interestRate: interestRate,
-        downPayment: downPayment,
-        downPaymentPercentage: downPaymentPercentage,
-        baseLoanAmount: baseLoanAmount,
-        closingCosts: closingCosts,
-        closingCostsPercentage: closingCostsPercentage,
-    }
-
-}
-
+ * ----- For POST && API call: addCalculations
+ */
 function getMortgageCalculationsFixData(object, price) {
     const dateObject = new Date(object.interest_rate_inserted_at);
     const year = dateObject.getFullYear();
@@ -470,7 +357,79 @@ function getMortgageCalculationsFixData(object, price) {
 
 }
 
+
+/**
+ * ----- For PUT calculations: updateCalculations
+ */
+function checkmortgageCalculationsData(userData, databaseData, price) {
+    const interestRate = databaseData.interest_rate;
+    let downPayment;
+    let downPaymentPercentage;
+    let closingCosts;
+    let closingCostsPercentage;
+
+    if (userData.down_payment === '' || userData.down_payment === undefined) {
+        if (userData.down_payment_percentage != '' || userData.down_payment_percentage != undefined) {
+            console.log('userData.down_payment_percentage:', userData.down_payment_percentage);
+            downPayment = (userData.down_payment_percentage / 100) * price
+        } else if (userData.down_payment_percentage === '' || userData.down_payment_percentage === undefined) {
+            console.log('databaseData.down_payment:', databaseData.down_payment);
+            downPayment = databaseData.down_payment;
+        }
+    } else if (userData.down_payment != '' || userData.down_payment != undefined) {
+        downPayment = userData.down_payment;
+    }
+
+    console.log('downPayment:', downPayment);
+
+    if (userData.down_payment_percentage === '' || userData.down_payment_percentage === undefined) {
+        if (userData.down_payment != '' || userData.down_payment != undefined) {
+            console.log('userData.down_payment:', userData.down_payment);
+            downPaymentPercentage = userData.down_payment / price
+        } else if (userData.down_payment === '' || userData.down_payment === undefined) {
+            downPaymentPercentage = databaseData.down_payment_percentage;
+        }
+    } else if (userData.down_payment_percentage != '' || userData.down_payment_percentage != undefined) {
+        downPaymentPercentage = userData.down_payment_percentage / 100
+    }
+
+    if (userData.closing_costs === '' || userData.closing_costs === undefined) {
+        if (userData.closing_costs_percentage != '' || userData.closing_costs_percentage != undefined) {
+            closingCosts = (userData.closing_costs_percentage / 100) * price
+        } else if (userData.closing_costs_percentage === '' || userData.closing_costs_percentage === undefined) {
+            closingCosts = databaseData.closing_costs;
+        }
+    } else if (userData.closing_costs != '' || userData.closing_costs != undefined) {
+        closingCosts = userData.closing_costs;
+    }
+
+    if (userData.closing_costs_percentage === '' || userData.closing_costs_percentage === undefined) {
+        if (userData.closing_costs != '' || userData.closing_costs != undefined) {
+            closingCostsPercentage = userData.closing_costs / price
+        } else if (userData.closing_costs === '' || userData.closing_costs === undefined) {
+            closingCostsPercentage = databaseData.closing_costs_percentage;
+        }
+    } else if (userData.closing_costs_percentage != '' || userData.closing_costs_percentage != undefined) {
+        closingCostsPercentage = userData.closing_costs_percentage / 100
+    }
+
+    let baseLoanAmount = price - downPayment;
+    return data = {
+        interestRate: interestRate,
+        downPayment: downPayment,
+        downPaymentPercentage: downPaymentPercentage,
+        baseLoanAmount: baseLoanAmount,
+        closingCosts: closingCosts,
+        closingCostsPercentage: closingCostsPercentage,
+    }
+
+}
+
+
+
+
+
 module.exports = router;
 
-// formattedCurrency(Number(propertyOfInterest.property[0].purchase_price))
+
 

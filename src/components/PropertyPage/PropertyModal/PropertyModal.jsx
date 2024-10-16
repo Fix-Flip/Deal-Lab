@@ -76,7 +76,7 @@ const PropertyModal = ({ isOpen, onClose, propertyCard, userId, setSelectedPrope
   //sends a dispatch to the properties saga
   const saveUpdatedPropertyInfo = () => {
     dispatch({
-      type: 'UPDATE_PROPERTY',
+      type: 'UPDATE_CALCULATIONS',
       payload: {
         propertyId: propertyOfInterest.property[0].id,
         holdingPeriod: propertyOfInterest.property[0].holding_period,

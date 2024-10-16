@@ -11,10 +11,9 @@ function* getProperties(action) {
     })
   } catch (error) {
     console.log('Error in getting properties:', error);
-    
   }
-  
 }
+
 
 function* addProperty(action) {
   console.log('Payload data:', action.payload);
@@ -24,15 +23,23 @@ function* addProperty(action) {
   try {
     const response = yield axios.post(`api/properties`, {address:address, addressId: addressId})
     console.log('addProperty data:', response.data);
+
+    yield put({
+      type: 'SET_CALCULATIONS',
+      payload: response.data
+    })
+    console.log('SET_CALCULATIONS worked!');
     
     yield put({
         type: 'GET_PROPERTIES',
         payload: userId
     })
+    console.log('GET_PROPERTIES worked!');
   } catch (error) {
     console.log('Error in getting property details:', error);
   }
 }
+
 
 function* deleteProperty(action) {
   // console.log('deleteProperty saga received a dispatch: ', action.payload)
@@ -51,6 +58,7 @@ function* deleteProperty(action) {
   }
 }
 
+
 //receives updated property information, sends the infomaiton to the server,
 //and gets new property and properties 
 function* updateProperty(action) {
@@ -59,17 +67,18 @@ function* updateProperty(action) {
     //sends a put request to to the properties router
     yield axios.put(`api/properties`, action.payload)
     yield put({
-        type: 'GET_PROPERTY_OF_INTEREST',
-        payload: action.payload.propertyId
+      type: 'GET_PROPERTY_OF_INTEREST',
+      payload: action.payload.propertyId
     })
     yield put({
       type: 'GET_PROPERTIES',
       payload: action.payload.userId
-  })
+    })
   } catch (error) {
     console.log('Error updating property taxes:', error);
   }
 }
+
 
 function* updateBackToDefault(action) {
   // console.log('Payload for back to default:', action.payload);
@@ -90,10 +99,10 @@ function* updateBackToDefault(action) {
   }
 }
 
+
 //getPropertyOfInterest sends an axios request to the properties.router.js and
 //sends the response data to the PropertyOfInterest reducer.
 function* getPropertyOfInterest(action) {
-  // console.log('in getPropertyOfInterest saga and the playload is: ', action.payload);
   try {
     //to properties.router.js with the property id as a paramater
     const response = yield axios.get(`/api/properties/propertyOfInterest/${action.payload}`);
@@ -103,6 +112,7 @@ function* getPropertyOfInterest(action) {
     console.log('getPropertyOfInterest get request failed', error);
   }
 }
+
 
 function* updatePropertyTaxes(action) {
   console.log('in update property taxes: ', action.payload)
@@ -117,6 +127,7 @@ function* updatePropertyTaxes(action) {
   }
 }
 
+
 function* getPropertiesFiltered(action) {
   try {
     const response = yield axios.get(`/api/properties/filtered/${action.payload.orderBy}/${action.payload.arrange}`)
@@ -129,6 +140,7 @@ function* getPropertiesFiltered(action) {
     console.log('Error updating property taxes:', error);
   }
 }
+
 
 function* propertiesSaga() {
     yield takeLatest('GET_PROPERTIES', getProperties);
